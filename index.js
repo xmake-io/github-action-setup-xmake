@@ -27,11 +27,12 @@ async function fetchVersions() {
 
 async function download(sha) {
     const folder = await fs.mkdtemp(path.join(os.tmpdir(), 'xmake'))
-    await exec('git', ['init'])
-    await exec('git', ['remote', 'add', 'origin', 'https://github.com/xmake-io/xmake.git'])
-    await exec('git', ['fetch'])
-    await exec('git', ['checkout', sha])
-    await exec('git', ['submodule', 'update', '--init', '--recursive'])
+    const opt = { cwd: folder }
+    await exec('git', ['init'], opt)
+    await exec('git', ['remote', 'add', 'origin', 'https://github.com/xmake-io/xmake.git'], opt)
+    await exec('git', ['fetch'], opt)
+    await exec('git', ['checkout', sha], opt)
+    await exec('git', ['submodule', 'update', '--init', '--recursive'], opt)
     return folder
 }
 
