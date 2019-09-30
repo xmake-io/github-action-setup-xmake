@@ -1,0 +1,15 @@
+{
+  "name": "github-action-setup-xmake",
+  "version": "1.0.0",
+  "description": "Set up your GitHub Actions workflow with a specific version of xmake",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "OpportunityLiu",
+  "license": "ISC",
+  "dependencies": {
+    "@actions/core": "^1.1.1",
+    "@actions/github": "^1.1.0"
+  }
+}

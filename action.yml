@@ -1,0 +1,14 @@
+name: setup xmake
+description: Set up a xmake environment and add it to the PATH
+author: OpportunityLiu
+inputs:
+  xmake-version:
+    required: true
+    default: master
+    description: The version to use.
+outputs:
+  time: # id of output
+    description: 'The time we greeted you'
+runs:
+  using: 'node12'
+  main: 'index.js'
