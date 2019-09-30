@@ -1,11 +1,15 @@
 name: setup xmake
 description: Set up a xmake environment and add it to the PATH
 author: OpportunityLiu
+icon: box
+color: green
+
 inputs:
   xmake-version:
     required: true
     default: latest
     description: The version to use. Should be a semver range or 'latest'
+
 runs:
   using: 'node12'
   main: 'index.js'
