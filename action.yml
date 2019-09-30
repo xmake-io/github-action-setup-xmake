@@ -5,10 +5,7 @@ inputs:
   xmake-version:
     required: true
     default: latest
-    description: The version to use.
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+    description: The version to use. Should be a semver range or 'latest'
 runs:
   using: 'node12'
   main: 'index.js'

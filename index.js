@@ -1,10 +1,9 @@
 const core = require('@actions/core')
+const exec = require('@actions/exec').exec
+const fs = require('fs').promises
+const toolCache = require('@actions/tool-cache')
 const os = require('os')
 const path = require('path')
-const child_process = require('child_process')
-const fetch = require('node-fetch')
-const fs = require('fs')
-const git = require('simple-git/promise')
 const semver = require('semver')
 const octokit = require('@octokit/rest')
 
@@ -18,7 +17,7 @@ async function fetchVersions() {
      */
     const versions = {}
     tags.data.forEach(tag => {
-        const ver = semver.valid(tag.name)
+        const ver = semver.clean(tag.name)
         if (ver) {
             versions[ver] = tag.commit.sha
         }
@@ -27,18 +26,16 @@ async function fetchVersions() {
 }
 
 async function download(sha) {
-    const folder = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'xmake'))
-    console.log(folder)
-    const repo = git(folder)
-    await repo.init()
-    await repo.addRemote('origin', 'https://github.com/xmake-io/xmake.git');
-    await repo.fetch()
-    await repo.checkout(sha)
-    await repo.submoduleUpdate(['--init', '--recursive'])
+    const folder = await fs.mkdtemp(path.join(os.tmpdir(), 'xmake'))
+    await exec('git', ['init'])
+    await exec('git', ['remote', 'add', 'origin', 'https://github.com/xmake-io/xmake.git'])
+    await exec('git', ['fetch'])
+    await exec('git', ['checkout', sha])
+    await exec('git', ['submodule', 'update', '--init', '--recursive'])
     return folder
 }
 
-async function getSha() {
+async function selectVersion() {
     let version = core.getInput('xmake-version') || 'latest'
     if (version.toLowerCase() === 'latest') version = ''
     version = semver.validRange(version)
@@ -47,26 +44,32 @@ async function getSha() {
     const versions = await fetchVersions()
     const ver = semver.maxSatisfying(Object.keys(versions), version)
     if (!ver) throw new Error(`No matched releases of xmake-version: ${version}`)
-    return versions[ver]
-}
 
-function exec(command) {
-    return new Promise((resolve, reject) =>
-        child_process.exec(command, {}, (error, stdout, stderr) => {
-            if (error) reject(error)
-            resolve({ stdout, stderr })
-        })
-    )
+    core.info(`Selected xmake ${ver}`)
+    core.debug(`SHA: ${versions[ver]}`)
+    return { version, sha: versions[ver] }
 }
 
 async function run() {
     try {
-        const folder = await core.group("download xmake", async () => await download(await getSha()))
-        await core.group("install xmake", async () => {
-            await exec(`make -C ${folder} build`)
-            await exec(`make -C ${folder} install prefix=/home/runner/.local`)
+        let version = ''
+        let sha = ''
+        const folder = await core.group("download xmake", async () => {
+            const v = await selectVersion()
+            version = v.version
+            sha = v.sha
+            return await download(sha)
         })
-        core.addPath("/home/runner/.local/bin")
+        await core.group("install xmake", async () => {
+            let toolDir = toolCache.find('xmake', version)
+            if (!toolDir) {
+                await exec('make', ['build'], { cwd: folder })
+                const prefix = path.join(os.tmpdir(), `xmake-${version}-${sha}`)
+                await exec('make', ['install', `prefix=${prefix}`], { cwd: folder })
+                toolDir = await toolCache.cacheDir(prefix, 'xmake', version)
+            }
+            core.addPath(path.join(toolDir, 'bin'))
+        })
     } catch (error) {
         core.setFailed(error.message)
     }
