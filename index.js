@@ -31,7 +31,7 @@ async function download(sha) {
     console.log(folder)
     const repo = git(folder)
     await repo.init()
-    await repo.addRemote('origin', 'https://gitee.com/tboox/xmake.git');
+    await repo.addRemote('origin', 'https://github.com/xmake-io/xmake.git');
     await repo.fetch()
     await repo.checkout(sha)
     await repo.submoduleUpdate(['--init', '--recursive'])
