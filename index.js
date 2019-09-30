@@ -68,7 +68,7 @@ async function run() {
                 return cacheDir
             })
         }
-        core.addPath(path.join(toolDir, 'bin'))
+        core.addPath(path.join(toolDir, 'share', 'xmake'))
         await exec('xmake --version')
     } catch (error) {
         core.setFailed(error.message)
