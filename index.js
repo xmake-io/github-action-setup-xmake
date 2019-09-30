@@ -19,13 +19,14 @@ async function winInstall(version) {
                 : `https://github.com/xmake-io/xmake/releases/download/v$v/xmake-v${version}.exe`
             core.info(`downloading from ${url}`)
             const file = await toolCache.downloadTool(url)
-            const exe = path.format({ ...path.parse(file), ext: '.exe' })
+            const exe = path.format({ ...path.parse(file), ext: '.exe', base: undefined })
             await fs.rename(file, exe)
             core.info(`downloaded to ${exe}`)
             return exe
         })
         toolDir = await core.group("install xmake", async () => {
             const binDir = path.join(os.tmpdir(), `xmake-${version}`)
+            core.info(`installing to ${binDir}`)
             await exec(`"${installer}" /NOADMIN /S /D=${binDir}`)
             core.info(`installed to ${binDir}`)
             const cacheDir = await toolCache.cacheDir(binDir, 'xmake', version)
