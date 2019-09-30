@@ -27,6 +27,7 @@ async function winInstall(version) {
         toolDir = await core.group("install xmake", async () => {
             const binDir = path.join(os.tmpdir(), `xmake-${version}`)
             await exec(`"${installer}" /NOADMIN /S /D=${binDir}`)
+            core.info(`installed to ${binDir}`)
             const cacheDir = await toolCache.cacheDir(binDir, 'xmake', version)
             await io.rmRF(binDir)
             await io.rmRF(installer)
