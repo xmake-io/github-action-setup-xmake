@@ -1,8 +1,9 @@
 name: setup xmake
 description: Set up a xmake environment and add it to the PATH
 author: OpportunityLiu
-icon: box
-color: green
+branding:
+  icon: play
+  color: green
 
 inputs:
   xmake-version:
