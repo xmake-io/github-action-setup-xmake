@@ -21,6 +21,7 @@ async function winInstall(version) {
             const file = await toolCache.downloadTool(url)
             const exe = path.format({ ...path.parse(file), ext: '.exe' })
             await fs.rename(file, exe)
+            core.info(`downloaded to ${exe}`)
             return exe
         })
         toolDir = await core.group("install xmake", async () => {
