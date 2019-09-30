@@ -1,6 +1,7 @@
 const core = require('@actions/core')
 const exec = require('@actions/exec').exec
 const fs = require('fs').promises
+const io = require('@actions/io')
 const toolCache = require('@actions/tool-cache')
 const os = require('os')
 const path = require('path')
@@ -25,6 +26,21 @@ async function fetchVersions() {
     return versions
 }
 
+async function selectVersion() {
+    let version = core.getInput('xmake-version') || 'latest'
+    if (version.toLowerCase() === 'latest') version = ''
+    version = semver.validRange(version)
+    if (!version) throw new Error(`Invalid input xmake-version: ${core.getInput('xmake-version')}`)
+
+    const versions = await fetchVersions()
+    const ver = semver.maxSatisfying(Object.keys(versions), version)
+    if (!ver) throw new Error(`No matched releases of xmake-version: ${version}`)
+
+    const sha = versions[ver]
+    core.info(`Selected xmake ${ver} (commit: ${sha.substr(0, 8)})`)
+    return { version: ver, sha }
+}
+
 async function download(sha) {
     const folder = await fs.mkdtemp(path.join(os.tmpdir(), 'xmake'))
     const opt = { cwd: folder }
@@ -36,41 +52,24 @@ async function download(sha) {
     return folder
 }
 
-async function selectVersion() {
-    let version = core.getInput('xmake-version') || 'latest'
-    if (version.toLowerCase() === 'latest') version = ''
-    version = semver.validRange(version)
-    if (!version) throw new Error(`Invalid input xmake-version: ${core.getInput('xmake-version')}`)
-
-    const versions = await fetchVersions()
-    const ver = semver.maxSatisfying(Object.keys(versions), version)
-    if (!ver) throw new Error(`No matched releases of xmake-version: ${version}`)
-
-    core.info(`Selected xmake ${ver}`)
-    core.debug(`SHA: ${versions[ver]}`)
-    return { version, sha: versions[ver] }
-}
-
 async function run() {
     try {
-        let version = ''
-        let sha = ''
-        const folder = await core.group("download xmake", async () => {
-            const v = await selectVersion()
-            version = v.version
-            sha = v.sha
-            return await download(sha)
-        })
-        await core.group("install xmake", async () => {
-            let toolDir = toolCache.find('xmake', version)
-            if (!toolDir) {
-                await exec('make', ['build'], { cwd: folder })
-                const prefix = path.join(os.tmpdir(), `xmake-${version}-${sha}`)
-                await exec('make', ['install', `prefix=${prefix}`], { cwd: folder })
-                toolDir = await toolCache.cacheDir(prefix, 'xmake', version)
-            }
-            core.addPath(path.join(toolDir, 'bin'))
-        })
+        const { version, sha } = await selectVersion()
+        let toolDir = toolCache.find('xmake', version)
+        if (!toolDir) {
+            const sourceDir = await core.group("download xmake", () => download(sha))
+            toolDir = await core.group("install xmake", async () => {
+                await exec('make', ['build'], { cwd: sourceDir })
+                const binDir = path.join(os.tmpdir(), `xmake-${version}-${sha}`)
+                await exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir })
+                const cacheDir = await toolCache.cacheDir(binDir, 'xmake', version)
+                await io.rmRF(binDir)
+                await io.rmRF(sourceDir)
+                return cacheDir
+            })
+        }
+        core.addPath(path.join(toolDir, 'bin'))
+        await exec('xmake --version')
     } catch (error) {
         core.setFailed(error.message)
     }
