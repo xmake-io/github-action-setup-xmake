@@ -4,7 +4,7 @@ author: OpportunityLiu
 inputs:
   xmake-version:
     required: true
-    default: master
+    default: latest
     description: The version to use.
 outputs:
   time: # id of output
