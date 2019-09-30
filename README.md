@@ -7,6 +7,8 @@ See [action.yml](./action.yml).
 
 ## Example
 
+```yml
 uses: OpportunityLiu/github-action-setup-xmake@master
 with:
   xmake-version: '2.2.8'
+```
