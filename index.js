@@ -17,11 +17,15 @@ async function winInstall(version) {
             const url = semver.gt(version, '2.2.6')
                 ? `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?tag=v${version}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`
                 : `https://github.com/xmake-io/xmake/releases/download/v$v/xmake-v${version}.exe`
-            return await toolCache.downloadTool(url)
+            core.info(`downloading from ${url}`)
+            const file = await toolCache.downloadTool(url)
+            const exe = path.format({ ...path.parse(file), ext: '.exe' })
+            await fs.rename(file, exe)
+            return exe
         })
         toolDir = await core.group("install xmake", async () => {
             const binDir = path.join(os.tmpdir(), `xmake-${version}`)
-            await exec(`"${installer}" /S /S=${binDir}`)
+            await exec(`"${installer}" /NOADMIN /S /D=${binDir}`)
             const cacheDir = await toolCache.cacheDir(binDir, 'xmake', version)
             await io.rmRF(binDir)
             await io.rmRF(installer)
