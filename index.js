@@ -37,7 +37,7 @@ async function selectVersion() {
     if (!ver) throw new Error(`No matched releases of xmake-version: ${version}`)
 
     const sha = versions[ver]
-    core.info(`Selected xmake ${ver} (commit: ${sha.substr(0, 8)})`)
+    core.info(`selected xmake v${ver} (commit: ${sha.substr(0, 8)})`)
     return { version: ver, sha }
 }
 
