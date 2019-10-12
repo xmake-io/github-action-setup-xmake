@@ -1,4 +1,4 @@
-name: Test
+name: test
 
 on: 
 - push
@@ -19,7 +19,7 @@ jobs:
     - uses: xmake-io/github-action-setup-xmake@master
       with:
         xmake-version: latest
-    - name: test
+    - name: Run tests
       run: |
         xmake create -P test
         xmake build -P test
