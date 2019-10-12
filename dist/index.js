@@ -57,7 +57,7 @@ async function unixInstall(version, sha) {
 }
 async function run() {
     try {
-        const { version, sha } = versions_1.selectVersion();
+        const { version, sha } = await versions_1.selectVersion();
         if (os.platform() === 'win32' || os.platform() === 'cygwin')
             await winInstall(version);
         else
