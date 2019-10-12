@@ -1,4 +1,7 @@
 # GitHub Action - Setup xmake
+[![Build status](https://github.com/xmake-io/github-action-setup-xmake/workflows/test/badge.svg)](https://github.com/xmake-io/github-action-setup-xmake/actions)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/xmake-io/github-action-setup-xmake)](https://github.com/marketplace/actions/setup-xmake)
+
 Set up your GitHub Actions workflow with a specific version of xmake
 
 ## Usage
