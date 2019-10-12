@@ -1,4 +1,7 @@
-{
+import * as core from '@actions/core'
+import * as semver from 'semver'
+
+export const versions: { [v: string]: string } = {
     "1.0.1": "723ec3e970e17f48a601fe2a919b9802b5e516fa",
     "1.0.2": "84fa20ca3ded99b9667609c5cb2e56b2308c8e4b",
     "1.0.3": "e56812a09d3677957c41bccc8988599208e3b49a",
@@ -23,5 +26,19 @@
     "2.2.5": "d71a01615883fffa53fbd28e578db14353628a52",
     "2.2.6": "eb60a76b7454975d151f2d8b5d9e19b26d561c2d",
     "2.2.7": "72bd93de8dd64cc5de8986860819a5873ce08fe5",
-    "2.2.8": "6a2e390a79c4f0444a03b566d4bf24849a6ee3a3"
+    "2.2.8": "6a2e390a79c4f0444a03b566d4bf24849a6ee3a3",
+}
+
+export function selectVersion(version?: string) {
+    version = version || core.getInput('xmake-version') || 'latest'
+    if (version.toLowerCase() === 'latest') version = ''
+    version = semver.validRange(version)
+    if (!version) throw new Error(`Invalid input xmake-version: ${core.getInput('xmake-version')}`)
+
+    const ver = semver.maxSatisfying(Object.keys(versions), version)
+    if (!ver) throw new Error(`No matched releases of xmake-version: ${version}`)
+
+    const sha = versions[ver]
+    core.info(`selected xmake v${ver} (commit: ${sha.substr(0, 8)})`)
+    return { version: ver, sha }
 }

@@ -1,15 +1,16 @@
-const core = require('@actions/core')
-const exec = require('@actions/exec').exec
-const fs = require('fs').promises
-const io = require('@actions/io')
-const toolCache = require('@actions/tool-cache')
-const os = require('os')
-const path = require('path')
-const semver = require('semver')
-const git = require('./git')
-const selectVersion = require('./selectVersion')
+import * as core from '@actions/core'
+import { exec } from '@actions/exec'
+import * as _fs from 'fs'
+const fs = _fs.promises
+import * as io from '@actions/io'
+import * as toolCache from '@actions/tool-cache'
+import * as os from 'os'
+import * as path from 'path'
+import * as semver from 'semver'
+import * as git from './git'
+import { selectVersion } from './versions'
 
-async function winInstall(version) {
+async function winInstall(version: string) {
     let toolDir = toolCache.find('xmake', version)
     if (!toolDir) {
         const installer = await core.group("download xmake", async () => {
@@ -38,7 +39,7 @@ async function winInstall(version) {
     core.addPath(toolDir)
 }
 
-async function unixInstall(version, sha) {
+async function unixInstall(version: string, sha: string) {
     let toolDir = toolCache.find('xmake', version)
     if (!toolDir) {
         const sourceDir = await core.group("download xmake", () => git.create(sha))

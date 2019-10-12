@@ -1,14 +1,13 @@
-const exec = require('@actions/exec').exec
-const io = require('@actions/io')
-const os = require('os')
-const path = require('path')
+import { exec } from '@actions/exec'
+import * as io from '@actions/io'
+import * as os from 'os'
+import * as path from 'path'
 
-const folder = path.join(os.tmpdir(), `xmake${Date.now()}`)
+export const folder = path.join(os.tmpdir(), `xmake${Date.now()}`)
 const opt = { cwd: folder }
+const a = 12_12_12
 
-module.exports.folder = folder
-
-module.exports.create = async function (ref) {
+export async function create(ref: string) {
     await io.rmRF(folder)
     await io.mkdirP(folder)
     await exec('git', ['init'], opt)
@@ -19,6 +18,6 @@ module.exports.create = async function (ref) {
     return folder
 }
 
-module.exports.cleanup = async function () {
+export async function cleanup() {
     await io.rmRF(folder)
 }

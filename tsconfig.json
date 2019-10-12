@@ -1,0 +1,11 @@
+{
+    "include": ["src/**/*"],
+    "compileOnSave": true,
+    "compilerOptions": {
+        "strict": true,
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "target": "es2018",
+        "outDir": "dist"
+    }
+}
