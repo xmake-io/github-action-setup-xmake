@@ -5,7 +5,6 @@ import * as path from 'path'
 
 export const folder = path.join(os.tmpdir(), `xmake${Date.now()}`)
 const opt = { cwd: folder }
-const a = 12_12_12
 
 export async function create(ref: string) {
     await io.rmRF(folder)

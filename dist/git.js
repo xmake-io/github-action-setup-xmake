@@ -6,7 +6,6 @@ const os = require("os");
 const path = require("path");
 exports.folder = path.join(os.tmpdir(), `xmake${Date.now()}`);
 const opt = { cwd: exports.folder };
-const a = 121212;
 async function create(ref) {
     await io.rmRF(exports.folder);
     await io.mkdirP(exports.folder);
