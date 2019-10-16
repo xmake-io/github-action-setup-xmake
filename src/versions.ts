@@ -4,10 +4,12 @@ import { downloadTool } from '@actions/tool-cache'
 import * as _fs from 'fs'
 const fs = _fs.promises
 
+type VersionMap = { [v: string]: string }
+
 export async function fetchVersions() {
     const file = await downloadTool('https://raw.githubusercontent.com/xmake-io/github-action-setup-xmake/data/versions.json')
     const versions = await fs.readFile(file, 'utf-8')
-    return JSON.parse(versions) as { [v: string]: string }
+    return JSON.parse(versions) as VersionMap
 }
 
 export async function selectVersion(version?: string) {
