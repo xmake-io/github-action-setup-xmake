@@ -14,6 +14,8 @@ Use latest version:
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1.0.2
+with:
+  xmake-version: latest
 ```
 
 Use specified version:
