@@ -11,20 +11,23 @@ See [action.yml](./action.yml).
 ## Example
 
 Use latest version:
+
 ```yml
-uses: xmake-io/github-action-setup-xmake@v1
+uses: xmake-io/github-action-setup-xmake@v1.0.2
 ```
 
 Use specified version:
+
 ```yml
-uses: xmake-io/github-action-setup-xmake@v1
+uses: xmake-io/github-action-setup-xmake@v1.0.2
 with:
-  xmake-version: '2.2.8'
+  xmake-version: '2.3.1'
 ```
 
 Use semver:
+
 ```yml
-uses: xmake-io/github-action-setup-xmake@v1
+uses: xmake-io/github-action-setup-xmake@v1.0.2
 with:
-  xmake-version: '>=2.2.6 <=2.2.8'
+  xmake-version: '>=2.2.6 <=2.3.1'
 ```
