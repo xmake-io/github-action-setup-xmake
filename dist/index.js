@@ -2,8 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = require("@actions/core");
 const exec_1 = require("@actions/exec");
-const _fs = require("fs");
-const fs = _fs.promises;
 const io = require("@actions/io");
 const toolCache = require("@actions/tool-cache");
 const os = require("os");
@@ -22,7 +20,7 @@ async function winInstall(version) {
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
             const exe = path.format({ ...path.parse(file), ext: '.exe', base: undefined });
-            await fs.rename(file, exe);
+            await io.mv(file, exe);
             core.info(`downloaded to ${exe}`);
             return exe;
         });

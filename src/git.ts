@@ -9,6 +9,7 @@ const opt = { cwd: folder };
 export async function lsRemote(): Promise<Record<string, string>> {
     let out = '';
     await exec('git', ['ls-remote', '--tags', 'https://github.com/xmake-io/xmake.git'], {
+        silent: true,
         listeners: {
             stdout: d => (out += d.toString()),
         },

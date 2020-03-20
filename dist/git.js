@@ -9,6 +9,7 @@ const opt = { cwd: exports.folder };
 async function lsRemote() {
     let out = '';
     await exec_1.exec('git', ['ls-remote', '--tags', 'https://github.com/xmake-io/xmake.git'], {
+        silent: true,
         listeners: {
             stdout: d => (out += d.toString()),
         },

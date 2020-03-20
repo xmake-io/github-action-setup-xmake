@@ -1,7 +1,5 @@
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
-import * as _fs from 'fs';
-const fs = _fs.promises;
 import * as io from '@actions/io';
 import * as toolCache from '@actions/tool-cache';
 import * as os from 'os';
@@ -21,7 +19,7 @@ async function winInstall(version: string): Promise<void> {
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
             const exe = path.format({ ...path.parse(file), ext: '.exe', base: undefined });
-            await fs.rename(file, exe);
+            await io.mv(file, exe);
             core.info(`downloaded to ${exe}`);
             return exe;
         });
