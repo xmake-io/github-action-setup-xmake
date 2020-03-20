@@ -2,10 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const core = require("@actions/core");
 const semver = require("semver");
+const tool_cache_1 = require("@actions/tool-cache");
 const _fs = require("fs");
 const fs = _fs.promises;
 async function fetchVersions() {
-    const tags = await (await fetch("https://api.github.com/repos/xmake-io/xmake/git/refs/tags")).json();
+    const file = await tool_cache_1.downloadTool("https://api.github.com/repos/xmake-io/xmake/git/refs/tags");
+    const tags = JSON.parse(await fs.readFile(file, { encoding: "utf-8" }));
     return tags.map(({ ref, object: { sha } }) => [ref.slice(11), sha]).reduce((o, [k, v]) => {
         o[k] = v;
         return o;
