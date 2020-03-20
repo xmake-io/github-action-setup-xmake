@@ -47,7 +47,7 @@ async function unixInstall(version, sha) {
             await exec_1.exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });
             const cacheDir = await toolCache.cacheDir(binDir, 'xmake', version);
             await io.rmRF(binDir);
-            await git.cleanup();
+            await git.cleanup(sha);
             return cacheDir;
         });
     }

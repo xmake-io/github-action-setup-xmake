@@ -1,16 +1,19 @@
 {
   "name": "github-action-setup-xmake",
-  "version": "1.0.1",
+  "version": "1.0.3",
   "description": "Set up your GitHub Actions workflow with a specific version of xmake",
   "main": "dist/index.js",
   "author": "OpportunityLiu",
   "license": "GPL-3.0-or-later",
+  "repository": "https://github.com/xmake-io/github-action-setup-xmake.git",
+  "homepage": "https://github.com/xmake-io/github-action-setup-xmake",
   "scripts": {
-    "clean": "rimraf dist",
+    "init": "yarn install && yarn clean",
     "watch": "tsc --watch",
-    "lint": "eslint --fix src/**/*",
     "build": "tsc --build ./tsconfig.build.json",
-    "rebuild":"yarn clean && yarn build",
+    "rebuild": "yarn clean && yarn build",
+    "clean": "rimraf dist",
+    "lint": "eslint --fix src/**/*",
     "test": "jest",
     "release": "yarn rebuild && yarn lint && yarn install --production"
   },

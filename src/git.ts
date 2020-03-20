@@ -3,8 +3,9 @@ import * as io from '@actions/io';
 import * as os from 'os';
 import * as path from 'path';
 
-export const folder = path.join(os.tmpdir(), `xmake${Date.now()}`);
-const opt = { cwd: folder };
+function makeOpt(ref: string): { cwd: string } {
+    return { cwd: path.join(os.tmpdir(), `xmake-${ref}`) };
+}
 
 export async function lsRemote(): Promise<Record<string, string>> {
     let out = '';
@@ -25,16 +26,18 @@ export async function lsRemote(): Promise<Record<string, string>> {
 }
 
 export async function create(ref: string): Promise<string> {
-    await io.rmRF(folder);
-    await io.mkdirP(folder);
+    const opt = makeOpt(ref);
+    await io.rmRF(opt.cwd);
+    await io.mkdirP(opt.cwd);
     await exec('git', ['init'], opt);
     await exec('git', ['remote', 'add', 'origin', 'https://github.com/xmake-io/xmake.git'], opt);
     await exec('git', ['fetch'], opt);
     await exec('git', ['checkout', ref], opt);
     await exec('git', ['submodule', 'update', '--init', '--recursive'], opt);
-    return folder;
+    return opt.cwd;
 }
 
-export async function cleanup(): Promise<void> {
-    await io.rmRF(folder);
+export async function cleanup(ref: string): Promise<void> {
+    const opt = makeOpt(ref);
+    await io.rmRF(opt.cwd);
 }
