@@ -16,9 +16,8 @@ type TagItem = {
 };
 
 export async function fetchVersions() {
-  const tags: [TagItem] = await (await fetch(
-    "https://api.github.com/repos/xmake-io/xmake/git/refs/tags"
-  )).json();
+  const file = await downloadTool("https://api.github.com/repos/xmake-io/xmake/git/refs/tags");
+  const tags: [TagItem] = JSON.parse(await fs.readFile(file, { encoding: "utf-8" }));
   return tags.map(({ ref, object: {sha} }) => [ref.slice(11), sha]).reduce(
     (o, [k, v]) => {
       o[k] = v;
