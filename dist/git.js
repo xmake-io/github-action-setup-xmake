@@ -6,6 +6,23 @@ const os = require("os");
 const path = require("path");
 exports.folder = path.join(os.tmpdir(), `xmake${Date.now()}`);
 const opt = { cwd: exports.folder };
+async function lsRemote() {
+    let out = '';
+    await exec_1.exec('git', ['ls-remote', '--tags', 'https://github.com/xmake-io/xmake.git'], {
+        listeners: {
+            stdout: d => (out += d.toString()),
+        },
+    });
+    const data = {};
+    out.split('\n').forEach(line => {
+        const [ref, tag] = line.trim().split('\t');
+        if (ref && tag && tag.startsWith('refs/tags/v')) {
+            data[tag.substring('refs/tags/v'.length)] = ref;
+        }
+    });
+    return data;
+}
+exports.lsRemote = lsRemote;
 async function create(ref) {
     await io.rmRF(exports.folder);
     await io.mkdirP(exports.folder);

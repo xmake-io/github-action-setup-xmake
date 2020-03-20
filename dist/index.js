@@ -14,7 +14,7 @@ const versions_1 = require("./versions");
 async function winInstall(version) {
     let toolDir = toolCache.find('xmake', version);
     if (!toolDir) {
-        const installer = await core.group("download xmake", async () => {
+        const installer = await core.group('download xmake', async () => {
             const arch = os.arch() === 'x64' ? 'x64' : 'x86';
             const url = semver.gt(version, '2.2.6')
                 ? `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?tag=v${version}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`
@@ -26,7 +26,7 @@ async function winInstall(version) {
             core.info(`downloaded to ${exe}`);
             return exe;
         });
-        toolDir = await core.group("install xmake", async () => {
+        toolDir = await core.group('install xmake', async () => {
             const binDir = path.join(os.tmpdir(), `xmake-${version}`);
             core.info(`installing to ${binDir}`);
             await exec_1.exec(`"${installer}" /NOADMIN /S /D=${binDir}`);
@@ -42,8 +42,8 @@ async function winInstall(version) {
 async function unixInstall(version, sha) {
     let toolDir = toolCache.find('xmake', version);
     if (!toolDir) {
-        const sourceDir = await core.group("download xmake", () => git.create(sha));
-        toolDir = await core.group("install xmake", async () => {
+        const sourceDir = await core.group('download xmake', () => git.create(sha));
+        toolDir = await core.group('install xmake', async () => {
             await exec_1.exec('make', ['build'], { cwd: sourceDir });
             const binDir = path.join(os.tmpdir(), `xmake-${version}-${sha}`);
             await exec_1.exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });
@@ -68,4 +68,4 @@ async function run() {
         core.setFailed(error.message);
     }
 }
-run();
+run().catch(e => core.error(e));
