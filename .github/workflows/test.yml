@@ -17,7 +17,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - uses: xmake-io/github-action-setup-xmake@master
+    - uses: xmake-io/github-action-setup-xmake@${{ github.sha }}
       with:
         xmake-version: latest
     - name: Run tests
