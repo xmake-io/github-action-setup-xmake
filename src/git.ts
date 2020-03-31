@@ -4,22 +4,39 @@ import * as os from 'os';
 import * as path from 'path';
 
 function makeOpt(ref: string): { cwd: string } {
-    return { cwd: path.join(os.tmpdir(), `xmake-${ref}`) };
+    return { cwd: path.join(os.tmpdir(), `xmake-git-${ref}`) };
 }
 
-export async function lsRemote(): Promise<Record<string, string>> {
+export type RefDic = {
+    heads: Record<string, string>;
+    tags: Record<string, string>;
+    pull: Record<number, { head?: string; merge?: string }>;
+};
+
+export async function lsRemote(): Promise<RefDic> {
     let out = '';
-    await exec('git', ['ls-remote', '--tags', 'https://github.com/xmake-io/xmake.git'], {
+    await exec('git', ['ls-remote', 'https://github.com/xmake-io/xmake.git'], {
         silent: true,
         listeners: {
-            stdout: d => (out += d.toString()),
+            stdout: (d) => (out += d.toString()),
         },
     });
-    const data: Record<string, string> = {};
-    out.split('\n').forEach(line => {
+    const data: RefDic = { heads: {}, tags: {}, pull: {} };
+    out.split('\n').forEach((line) => {
         const [ref, tag] = line.trim().split('\t');
-        if (ref && tag && tag.startsWith('refs/tags/v')) {
-            data[tag.substring('refs/tags/v'.length)] = ref;
+        if (ref && tag && tag.startsWith('refs/')) {
+            const tagPath = tag.split('/').splice(1);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let ldata = data as any;
+            for (let i = 0; i < tagPath.length - 1; i++) {
+                const seg = tagPath[i];
+                if (typeof ldata[seg] === 'object') {
+                    ldata = ldata[seg];
+                } else {
+                    ldata = ldata[seg] = {};
+                }
+            }
+            ldata[tagPath[tagPath.length - 1]] = ref;
         }
     });
     return data;
