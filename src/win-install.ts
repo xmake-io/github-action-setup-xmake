@@ -8,22 +8,23 @@ import * as semver from 'semver';
 import { Version } from './versions';
 
 export async function winInstall(version: Version): Promise<void> {
-    let toolDir = toolCache.find('xmake', version.version);
+    const ver = version.version;
+    let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {
         const installer = await core.group(`download xmake ${version}`, async () => {
             let url = '';
             if (version.type === 'heads') {
                 // we only use appveyor ci artifacts for branch version
                 const arch = os.arch() === 'x64' ? 'x64' : 'x86';
-                url = `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?branch=${version.version}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`;
+                url = `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?branch=${ver}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`;
             } else if (version.type === 'pull') {
                 throw new Error('PR builds for windows is not supported');
             } else {
                 // we cannot use appveyor ci artifacts, the old version links may be broken.
                 const arch = os.arch() === 'x64' ? 'win64' : 'win32';
-                url = semver.gt(version.version, '2.2.6')
-                    ? `https://github.com/xmake-io/xmake/releases/download/v${version}/xmake-v${version}.${arch}.exe`
-                    : `https://github.com/xmake-io/xmake/releases/download/v${version}/xmake-v${version}.exe`;
+                url = semver.gt(ver, '2.2.6')
+                    ? `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.${arch}.exe`
+                    : `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.exe`;
             }
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
@@ -37,7 +38,7 @@ export async function winInstall(version: Version): Promise<void> {
             core.info(`installing to ${binDir}`);
             await exec(`"${installer}" /NOADMIN /S /D=${binDir}`);
             core.info(`installed to ${binDir}`);
-            const cacheDir = await toolCache.cacheDir(binDir, 'xmake', version.version);
+            const cacheDir = await toolCache.cacheDir(binDir, 'xmake', ver);
             await io.rmRF(binDir);
             await io.rmRF(installer);
             return cacheDir;
