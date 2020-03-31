@@ -8,14 +8,22 @@ import * as semver from 'semver';
 import * as git from './git';
 import { selectVersion } from './versions';
 
-async function winInstall(version: string): Promise<void> {
+async function winInstall(version: string, sha: string): Promise<void> {
     let toolDir = toolCache.find('xmake', version);
     if (!toolDir) {
-        const installer = await core.group('download xmake', async () => {
-            const arch = os.arch() === 'x64' ? 'x64' : 'x86';
-            const url = semver.gt(version, '2.2.6')
-                ? `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?tag=v${version}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`
-                : `https://github.com/xmake-io/xmake/releases/download/v$v/xmake-v${version}.exe`;
+        const installer = await core.group(`download xmake ${version}`, async () => {
+            let url = "";
+            if (version.startsWith("branch@")) {
+                // we only use appveyor ci artifacts for branch version
+                const arch = os.arch() === 'x64' ? 'x64' : 'x86';
+                url = `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?branch=${sha}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`;
+            } else {
+                // we cannot use appveyor ci artifacts, the old version links may be broken.
+                const arch = os.arch() === 'x64' ? 'win64' : 'win32';
+                url = semver.gt(version, '2.2.6')
+                    ? `https://github.com/xmake-io/xmake/releases/download/v${version}/xmake-v${version}.${arch}.exe`
+                    : `https://github.com/xmake-io/xmake/releases/download/v${version}/xmake-v${version}.exe`;
+            }
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
             const exe = path.format({ ...path.parse(file), ext: '.exe', base: undefined });
@@ -23,7 +31,7 @@ async function winInstall(version: string): Promise<void> {
             core.info(`downloaded to ${exe}`);
             return exe;
         });
-        toolDir = await core.group('install xmake', async () => {
+        toolDir = await core.group(`install xmake ${version}`, async () => {
             const binDir = path.join(os.tmpdir(), `xmake-${version}`);
             core.info(`installing to ${binDir}`);
             await exec(`"${installer}" /NOADMIN /S /D=${binDir}`);
@@ -40,8 +48,8 @@ async function winInstall(version: string): Promise<void> {
 async function unixInstall(version: string, sha: string): Promise<void> {
     let toolDir = toolCache.find('xmake', version);
     if (!toolDir) {
-        const sourceDir = await core.group('download xmake', () => git.create(sha));
-        toolDir = await core.group('install xmake', async () => {
+        const sourceDir = await core.group(`download xmake ${version}`, () => git.create(sha));
+        toolDir = await core.group(`install xmake ${version}`, async () => {
             await exec('make', ['build'], { cwd: sourceDir });
             const binDir = path.join(os.tmpdir(), `xmake-${version}-${sha}`);
             await exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });
@@ -51,13 +59,19 @@ async function unixInstall(version: string, sha: string): Promise<void> {
             return cacheDir;
         });
     }
-    core.addPath(path.join(toolDir, 'share', 'xmake'));
+            
+    // for versions 2.3.2 and above, xmake will be installed directly into the bin directory, and no script will be used to wrap it.
+    if (version.startsWith("branch@") || semver.gt(version, '2.3.1')) {
+        core.addPath(path.join(toolDir, 'bin'));
+    } else {
+        core.addPath(path.join(toolDir, 'share', 'xmake')); // only for <= 2.3.1
+    }
 }
 
 async function run(): Promise<void> {
     try {
         const { version, sha } = await selectVersion();
-        if (os.platform() === 'win32' || os.platform() === 'cygwin') await winInstall(version);
+        if (os.platform() === 'win32' || os.platform() === 'cygwin') await winInstall(version, sha);
         else await unixInstall(version, sha);
         await exec('xmake --version');
     } catch (error) {
