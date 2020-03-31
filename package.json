@@ -15,7 +15,7 @@
     "clean": "rimraf dist",
     "lint": "eslint --fix src/**/*.ts",
     "test": "jest",
-    "release": "yarn rebuild && yarn lint && yarn install --production"
+    "release": "yarn rebuild && yarn lint && yarn install --production --no-bin-links"
   },
   "dependencies": {
     "@actions/core": "^1.1.3",
