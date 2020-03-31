@@ -38,11 +38,10 @@ async function selectBranch(branch) {
     throw new Error(`Branch ${branch} not found`);
 }
 async function selectPr(pr) {
-    var _a;
     const versions = await git_1.lsRemote();
     if (pr in versions.pull) {
         const prheads = versions.pull[pr];
-        const sha = (_a = prheads.merge) !== null && _a !== void 0 ? _a : prheads.head;
+        const sha = prheads.head;
         if (sha) {
             return new VersionImpl(`#${pr}`, sha, 'pull', `pull request #${pr}`);
         }

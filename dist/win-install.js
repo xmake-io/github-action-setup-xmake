@@ -7,27 +7,30 @@ const toolCache = require("@actions/tool-cache");
 const os = require("os");
 const path = require("path");
 const semver = require("semver");
+function getInstallerUrl(version) {
+    const ver = version.version;
+    if (version.type === 'heads') {
+        // we only use appveyor ci artifacts for branch version
+        const arch = os.arch() === 'x64' ? 'x64' : 'x86';
+        return `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?branch=${ver}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`;
+    }
+    else if (version.type === 'pull') {
+        throw new Error('PR builds for windows is not supported');
+    }
+    else {
+        // we cannot use appveyor ci artifacts, the old version links may be broken.
+        const arch = os.arch() === 'x64' ? 'win64' : 'win32';
+        return semver.gt(ver, '2.2.6')
+            ? `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.${arch}.exe`
+            : `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.exe`;
+    }
+}
 async function winInstall(version) {
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {
         const installer = await core.group(`download xmake ${version}`, async () => {
-            let url = '';
-            if (version.type === 'heads') {
-                // we only use appveyor ci artifacts for branch version
-                const arch = os.arch() === 'x64' ? 'x64' : 'x86';
-                url = `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?branch=${ver}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`;
-            }
-            else if (version.type === 'pull') {
-                throw new Error('PR builds for windows is not supported');
-            }
-            else {
-                // we cannot use appveyor ci artifacts, the old version links may be broken.
-                const arch = os.arch() === 'x64' ? 'win64' : 'win32';
-                url = semver.gt(ver, '2.2.6')
-                    ? `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.${arch}.exe`
-                    : `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.exe`;
-            }
+            const url = getInstallerUrl(version);
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
             const exe = path.format({ ...path.parse(file), ext: '.exe', base: undefined });

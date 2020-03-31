@@ -30,7 +30,7 @@ async function selectPr(pr: number): Promise<Version> {
     const versions = await lsRemote();
     if (pr in versions.pull) {
         const prheads = versions.pull[pr];
-        const sha = prheads.merge ?? prheads.head;
+        const sha = prheads.head;
         if (sha) {
             return new VersionImpl(`#${pr}`, sha, 'pull', `pull request #${pr}`);
         }

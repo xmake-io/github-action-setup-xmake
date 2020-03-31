@@ -8,9 +8,22 @@ function makeOpt(ref: string): { cwd: string } {
 }
 
 export type RefDic = {
+    /** branches */
     heads: Record<string, string>;
+    /** tags */
     tags: Record<string, string>;
-    pull: Record<number, { head?: string; merge?: string }>;
+    /** pull requests */
+    pull: Record<
+        number,
+        {
+            /** the current state of the pull request */
+            head: string;
+            /** the current branch we're merging onto */
+            base?: string;
+            /** merge result */
+            merge?: string;
+        }
+    >;
 };
 
 export async function lsRemote(): Promise<RefDic> {
