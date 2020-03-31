@@ -26,6 +26,14 @@ with:
   xmake-version: '2.3.1'
 ```
 
+Use specified branch:
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: branch@master
+```
+
 Use semver:
 
 ```yml
