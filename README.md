@@ -34,6 +34,14 @@ with:
   xmake-version: branch@master
 ```
 
+Use specified pr:
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: pr@1
+```
+
 Use semver:
 
 ```yml
