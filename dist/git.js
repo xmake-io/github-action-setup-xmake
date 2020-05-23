@@ -43,7 +43,7 @@ async function create(ref) {
     await io.mkdirP(opt.cwd);
     await exec_1.exec('git', ['init'], opt);
     await exec_1.exec('git', ['remote', 'add', 'origin', 'https://github.com/xmake-io/xmake.git'], opt);
-    await exec_1.exec('git', ['fetch'], opt);
+    await exec_1.exec('git', ['fetch', 'origin', '+refs/pull/*:refs/remotes/origin/pull/*', '+refs/heads/*:refs/remotes/origin/*'], opt);
     await exec_1.exec('git', ['checkout', ref], opt);
     await exec_1.exec('git', ['submodule', 'update', '--init', '--recursive'], opt);
     return opt.cwd;
