@@ -2,29 +2,11 @@ import { exec } from '@actions/exec';
 import * as io from '@actions/io';
 import * as os from 'os';
 import * as path from 'path';
+import { Sha, RefDic } from './interfaces';
 
-function makeOpt(ref: string): { cwd: string } {
+function makeOpt(ref: Sha): { cwd: string } {
     return { cwd: path.join(os.tmpdir(), `xmake-git-${ref}`) };
 }
-
-export type RefDic = {
-    /** branches */
-    heads: Record<string, string>;
-    /** tags */
-    tags: Record<string, string>;
-    /** pull requests */
-    pull: Record<
-        number,
-        {
-            /** the current state of the pull request */
-            head: string;
-            /** the current branch we're merging onto */
-            base?: string;
-            /** merge result */
-            merge?: string;
-        }
-    >;
-};
 
 export async function lsRemote(): Promise<RefDic> {
     let out = '';
@@ -55,7 +37,7 @@ export async function lsRemote(): Promise<RefDic> {
     return data;
 }
 
-export async function create(ref: string): Promise<string> {
+export async function create(ref: Sha): Promise<string> {
     const opt = makeOpt(ref);
     await io.rmRF(opt.cwd);
     await io.mkdirP(opt.cwd);
@@ -67,7 +49,7 @@ export async function create(ref: string): Promise<string> {
     return opt.cwd;
 }
 
-export async function cleanup(ref: string): Promise<void> {
+export async function cleanup(ref: Sha): Promise<void> {
     const opt = makeOpt(ref);
     await io.rmRF(opt.cwd);
 }

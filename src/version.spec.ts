@@ -332,6 +332,30 @@ describe('selectVersion', () => {
         });
     });
 
+    it('should return pr merge of sha', async () => {
+        await expect(selectVersion('sha@2f93475049575ed5e44699daa378239bc141aad3')).resolves.toEqual({
+            version: 'pr#217',
+            sha: '2f93475049575ed5e44699daa378239bc141aad3',
+            type: 'pull',
+        });
+    });
+
+    it('should not return pr head of sha if merge present', async () => {
+        await expect(selectVersion('sha@905a8607f3f31ab9efeb68684d40df8284683f3a')).resolves.toEqual({
+            version: 'sha#905a8607f3f31ab9efeb68684d40df8284683f3a',
+            sha: '905a8607f3f31ab9efeb68684d40df8284683f3a',
+            type: 'sha',
+        });
+    });
+
+    it('should return pr head of sha', async () => {
+        await expect(selectVersion('sha@af28dba1f52990cb7b6c3c8f69f1f1bcf017c90a')).resolves.toEqual({
+            version: 'pr#708',
+            sha: 'af28dba1f52990cb7b6c3c8f69f1f1bcf017c90a',
+            type: 'pull',
+        });
+    });
+
     it('should return correct normalized sha', async () => {
         await expect(selectVersion('sha@Af28dba1f52990cb7b6c3c8f69f1f1bcf017c90b')).resolves.toEqual({
             version: 'sha#af28dba1f52990cb7b6c3c8f69f1f1bcf017c90b',

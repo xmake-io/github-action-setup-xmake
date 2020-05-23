@@ -1,12 +1,7 @@
 import * as core from '@actions/core';
 import * as semver from 'semver';
-import { lsRemote, RefDic } from './git';
-
-export interface Version {
-    version: string;
-    sha: string;
-    type: keyof RefDic | 'sha';
-}
+import { lsRemote } from './git';
+import { RefDic, Sha, Version } from './interfaces';
 
 let VERSIONS: RefDic | undefined;
 
@@ -16,7 +11,7 @@ async function getVersions(): Promise<RefDic> {
 }
 
 class VersionImpl implements Version {
-    constructor(readonly version: string, readonly sha: string, readonly type: Version['type'], toString: string) {
+    constructor(readonly version: string, readonly sha: Sha, readonly type: Version['type'], toString: string) {
         this.#string = toString;
     }
     readonly #string: string;
@@ -63,20 +58,25 @@ async function selectSemver(version: string): Promise<Version> {
 }
 
 async function selectSha(sha: string): Promise<Version> {
-    sha = sha.toLowerCase();
-    if (!/^[a-f0-9]{40}$/gi.test(sha)) throw new Error(`Invalid sha value ${sha}`);
+    const shaValue = Sha(sha);
     const versions = await getVersions();
     for (const branch in versions.heads) {
-        if (versions.heads[branch] === sha) {
+        if (versions.heads[branch] === shaValue) {
             return selectBranch(branch);
         }
     }
     for (const tag in versions.tags) {
-        if (versions.tags[tag] === sha) {
+        if (versions.tags[tag] === shaValue) {
             return selectSemver(tag);
         }
     }
-    return Promise.resolve(new VersionImpl(`sha#${sha}`, sha, 'sha', `commit ${sha.substr(0, 8)}`));
+    for (const pr in versions.pull) {
+        const prData = versions.pull[pr];
+        if ((prData.merge ?? prData.head) === shaValue) {
+            return selectPr(Number.parseInt(pr));
+        }
+    }
+    return Promise.resolve(new VersionImpl(`sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`));
 }
 
 export async function selectVersion(version?: string): Promise<Version> {

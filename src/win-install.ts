@@ -5,7 +5,7 @@ import * as toolCache from '@actions/tool-cache';
 import * as os from 'os';
 import * as path from 'path';
 import * as semver from 'semver';
-import { Version } from './versions';
+import { Version } from './interfaces';
 
 function getInstallerUrl(version: Version): string {
     const ver = version.version;

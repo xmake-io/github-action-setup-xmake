@@ -6,7 +6,7 @@ import * as os from 'os';
 import * as path from 'path';
 import * as semver from 'semver';
 import * as git from './git';
-import { Version } from './versions';
+import { Version } from './interfaces';
 
 export async function unixInstall(version: Version): Promise<void> {
     const ver = version.version;

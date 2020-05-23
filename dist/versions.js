@@ -17,6 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const core = require("@actions/core");
 const semver = require("semver");
 const git_1 = require("./git");
+const interfaces_1 = require("./interfaces");
 let VERSIONS;
 async function getVersions() {
     if (VERSIONS)
@@ -70,21 +71,26 @@ async function selectSemver(version) {
     return new VersionImpl(ver, sha, 'tags', ver);
 }
 async function selectSha(sha) {
-    sha = sha.toLowerCase();
-    if (!/^[a-f0-9]{40}$/gi.test(sha))
-        throw new Error(`Invalid sha value ${sha}`);
+    var _a;
+    const shaValue = interfaces_1.Sha(sha);
     const versions = await getVersions();
     for (const branch in versions.heads) {
-        if (versions.heads[branch] === sha) {
+        if (versions.heads[branch] === shaValue) {
             return selectBranch(branch);
         }
     }
     for (const tag in versions.tags) {
-        if (versions.tags[tag] === sha) {
+        if (versions.tags[tag] === shaValue) {
             return selectSemver(tag);
         }
     }
-    return Promise.resolve(new VersionImpl(`sha#${sha}`, sha, 'sha', `commit ${sha.substr(0, 8)}`));
+    for (const pr in versions.pull) {
+        const prData = versions.pull[pr];
+        if (((_a = prData.merge) !== null && _a !== void 0 ? _a : prData.head) === shaValue) {
+            return selectPr(Number.parseInt(pr));
+        }
+    }
+    return Promise.resolve(new VersionImpl(`sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`));
 }
 async function selectVersion(version) {
     // get version string
