@@ -302,7 +302,7 @@ describe('selectVersion', () => {
 
     it('should return correct pr', async () => {
         await expect(selectVersion('pr@708')).resolves.toEqual({
-            version: '#708',
+            version: 'pr#708',
             sha: 'af28dba1f52990cb7b6c3c8f69f1f1bcf017c90a',
             type: 'pull',
         });
@@ -314,5 +314,41 @@ describe('selectVersion', () => {
 
     it('should throw invalid pr', async () => {
         await expect(selectVersion('pr@xxx')).rejects.toThrowError('Invalid pull requrest xxx, should be a positive integer');
+    });
+
+    it('should return branch of sha', async () => {
+        await expect(selectVersion('sha@efad01e547f30d66d90e486c91c3afa0dbaceed3')).resolves.toEqual({
+            version: 'master',
+            sha: 'efad01e547f30d66d90e486c91c3afa0dbaceed3',
+            type: 'heads',
+        });
+    });
+
+    it('should return tag of sha', async () => {
+        await expect(selectVersion('sha@31bacc4f76101e6a865ec254c48d8bcba456378f')).resolves.toEqual({
+            version: 'v2.3.2',
+            sha: '31bacc4f76101e6a865ec254c48d8bcba456378f',
+            type: 'tags',
+        });
+    });
+
+    it('should return correct normalized sha', async () => {
+        await expect(selectVersion('sha@Af28dba1f52990cb7b6c3c8f69f1f1bcf017c90b')).resolves.toEqual({
+            version: 'sha#af28dba1f52990cb7b6c3c8f69f1f1bcf017c90b',
+            sha: 'af28dba1f52990cb7b6c3c8f69f1f1bcf017c90b',
+            type: 'sha',
+        });
+    });
+
+    it('should throw invalid length sha', async () => {
+        await expect(selectVersion('sha@af28dba1f52990cb7b6c3c8f69f1f1bcf017c90')).rejects.toThrowError(
+            'Invalid sha value af28dba1f52990cb7b6c3c8f69f1f1bcf017c90',
+        );
+    });
+
+    it('should throw invalid char sha', async () => {
+        await expect(selectVersion('sha@af28dba1f52990cb7b6c3c8f69f1f1bcf017c90g')).rejects.toThrowError(
+            'Invalid sha value af28dba1f52990cb7b6c3c8f69f1f1bcf017c90g',
+        );
     });
 });

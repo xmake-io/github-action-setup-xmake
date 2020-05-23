@@ -5,11 +5,18 @@ import { lsRemote, RefDic } from './git';
 export interface Version {
     version: string;
     sha: string;
-    type: keyof RefDic;
+    type: keyof RefDic | 'sha';
+}
+
+let VERSIONS: RefDic | undefined;
+
+async function getVersions(): Promise<RefDic> {
+    if (VERSIONS) return VERSIONS;
+    return (VERSIONS = await lsRemote());
 }
 
 class VersionImpl implements Version {
-    constructor(readonly version: string, readonly sha: string, readonly type: keyof RefDic, toString: string) {
+    constructor(readonly version: string, readonly sha: string, readonly type: Version['type'], toString: string) {
         this.#string = toString;
     }
     readonly #string: string;
@@ -19,7 +26,7 @@ class VersionImpl implements Version {
 }
 
 async function selectBranch(branch: string): Promise<Version> {
-    const versions = await lsRemote();
+    const versions = await getVersions();
     if (branch in versions.heads) {
         return new VersionImpl(branch, versions.heads[branch], 'heads', `branch ${branch}`);
     }
@@ -27,12 +34,12 @@ async function selectBranch(branch: string): Promise<Version> {
 }
 
 async function selectPr(pr: number): Promise<Version> {
-    const versions = await lsRemote();
+    const versions = await getVersions();
     if (pr in versions.pull) {
         const prheads = versions.pull[pr];
-        const sha = prheads.head;
+        const sha = prheads.merge ?? prheads.head;
         if (sha) {
-            return new VersionImpl(`#${pr}`, sha, 'pull', `pull request #${pr}`);
+            return new VersionImpl(`pr#${pr}`, sha, 'pull', `pull request #${pr}`);
         }
     }
     throw new Error(`Pull requrest #${pr} not found`);
@@ -45,7 +52,7 @@ async function selectSemver(version: string): Promise<Version> {
         throw new Error(`Invalid semver`);
     }
 
-    const versions = await lsRemote();
+    const versions = await getVersions();
     const ver = semver.maxSatisfying(Object.keys(versions.tags), v);
     if (!ver) {
         throw new Error(`No matched releases of xmake-version ${v.format()}`);
@@ -53,6 +60,23 @@ async function selectSemver(version: string): Promise<Version> {
 
     const sha = versions.tags[ver];
     return new VersionImpl(ver, sha, 'tags', ver);
+}
+
+async function selectSha(sha: string): Promise<Version> {
+    sha = sha.toLowerCase();
+    if (!/^[a-f0-9]{40}$/gi.test(sha)) throw new Error(`Invalid sha value ${sha}`);
+    const versions = await getVersions();
+    for (const branch in versions.heads) {
+        if (versions.heads[branch] === sha) {
+            return selectBranch(branch);
+        }
+    }
+    for (const tag in versions.tags) {
+        if (versions.tags[tag] === sha) {
+            return selectSemver(tag);
+        }
+    }
+    return Promise.resolve(new VersionImpl(`sha#${sha}`, sha, 'sha', `commit ${sha.substr(0, 8)}`));
 }
 
 export async function selectVersion(version?: string): Promise<Version> {
@@ -66,7 +90,6 @@ export async function selectVersion(version?: string): Promise<Version> {
         const branch = version.substr('branch@'.length);
         ret = await selectBranch(branch);
     }
-
     // select pr
     if (version.startsWith('pr@')) {
         const pr = Number.parseInt(version.substr('pr@'.length));
@@ -75,6 +98,11 @@ export async function selectVersion(version?: string): Promise<Version> {
         }
         ret = await selectPr(pr);
     }
+    // select sha
+    if (version.startsWith('sha@')) {
+        const sha = version.substr('sha@'.length);
+        ret = await selectSha(sha);
+    }
     // select version
     if (semver.validRange(version)) {
         ret = await selectSemver(version);
@@ -82,7 +110,6 @@ export async function selectVersion(version?: string): Promise<Version> {
     if (!ret) {
         throw new Error(`Invalid input xmake-version ${core.getInput('xmake-version')}`);
     }
-
     core.info(`Selected xmake ${ret} (commit: ${ret.sha.substr(0, 8)})`);
     return ret;
 }
