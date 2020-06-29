@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.unixInstall = void 0;
 const core = require("@actions/core");
 const exec_1 = require("@actions/exec");
 const io = require("@actions/io");
@@ -12,8 +13,8 @@ async function unixInstall(version) {
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {
-        const sourceDir = await core.group(`download xmake ${version}`, () => git.create(version.sha));
-        toolDir = await core.group(`install xmake ${version}`, async () => {
+        const sourceDir = await core.group(`download xmake ${String(version)}`, () => git.create(version.repo, version.sha));
+        toolDir = await core.group(`install xmake ${String(version)}`, async () => {
             await exec_1.exec('make', ['build'], { cwd: sourceDir });
             const binDir = path.join(os.tmpdir(), `xmake-${version.sha}`);
             await exec_1.exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });

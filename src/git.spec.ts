@@ -1,9 +1,10 @@
 import * as git from './git';
 import * as semver from 'semver';
+import { Repo } from './interfaces';
 
 describe('lsRemote', () => {
     it('should return correct records', async () => {
-        const records = await git.lsRemote();
+        const records = await git.lsRemote(Repo('xmake-io/xmake'));
         expect(records).toHaveProperty('heads');
         expect(records).toHaveProperty('tags');
         expect(records).toHaveProperty('pull');

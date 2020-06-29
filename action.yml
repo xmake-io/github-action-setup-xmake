@@ -9,7 +9,7 @@ inputs:
   xmake-version:
     required: true
     default: latest
-    description: The version to use. Should be a semver range or 'latest'. Or use branch@{branch_name} to select a branch.
+    description: The version to use. Should be a semver range or 'latest'. Or use [{repository}#]branch@{branch_name} to select a branch.
 
 runs:
   using: 'node12'

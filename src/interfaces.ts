@@ -7,6 +7,13 @@ export function Sha(sha: string): Sha {
     return sha as Sha;
 }
 
+export type Repo = Opaque<string, 'repo'>;
+export function Repo(repo: string): Repo {
+    repo = repo.trim();
+    if (!/^([^/#]+\/[^/#]+)$/g.test(repo)) throw new Error(`Invalid repo value ${repo}`);
+    return repo as Repo;
+}
+
 export type RefDic = {
     /** branches */
     heads: Record<string, Sha>;
@@ -30,4 +37,5 @@ export interface Version {
     version: string;
     sha: Sha;
     type: keyof RefDic | 'sha';
+    repo: Repo;
 }

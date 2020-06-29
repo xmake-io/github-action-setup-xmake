@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.cleanup = exports.create = exports.lsRemote = void 0;
 const exec_1 = require("@actions/exec");
 const io = require("@actions/io");
 const os = require("os");
@@ -7,9 +8,10 @@ const path = require("path");
 function makeOpt(ref) {
     return { cwd: path.join(os.tmpdir(), `xmake-git-${ref}`) };
 }
-async function lsRemote() {
+const repoUrl = (repo) => `https://github.com/${repo}.git`;
+async function lsRemote(repo) {
     let out = '';
-    await exec_1.exec('git', ['ls-remote', 'https://github.com/xmake-io/xmake.git'], {
+    await exec_1.exec('git', ['ls-remote', repoUrl(repo)], {
         silent: true,
         listeners: {
             stdout: (d) => (out += d.toString()),
@@ -21,28 +23,32 @@ async function lsRemote() {
         if (ref && tag && tag.startsWith('refs/')) {
             const tagPath = tag.split('/').splice(1);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let ldata = data;
+            let ldata = data; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
             for (let i = 0; i < tagPath.length - 1; i++) {
                 const seg = tagPath[i];
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                 if (typeof ldata[seg] === 'object') {
-                    ldata = ldata[seg];
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+                    ldata = ldata[seg]; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
                 }
                 else {
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
                     ldata = ldata[seg] = {};
                 }
             }
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
             ldata[tagPath[tagPath.length - 1]] = ref;
         }
     });
     return data;
 }
 exports.lsRemote = lsRemote;
-async function create(ref) {
+async function create(repo, ref) {
     const opt = makeOpt(ref);
     await io.rmRF(opt.cwd);
     await io.mkdirP(opt.cwd);
     await exec_1.exec('git', ['init'], opt);
-    await exec_1.exec('git', ['remote', 'add', 'origin', 'https://github.com/xmake-io/xmake.git'], opt);
+    await exec_1.exec('git', ['remote', 'add', 'origin', repoUrl(repo)], opt);
     await exec_1.exec('git', ['fetch', 'origin', '+refs/pull/*:refs/remotes/origin/pull/*', '+refs/heads/*:refs/remotes/origin/*'], opt);
     await exec_1.exec('git', ['checkout', ref], opt);
     await exec_1.exec('git', ['submodule', 'update', '--init', '--recursive'], opt);

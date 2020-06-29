@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.winInstall = void 0;
 const core = require("@actions/core");
 const exec_1 = require("@actions/exec");
 const io = require("@actions/io");
@@ -40,7 +41,7 @@ async function winInstall(version) {
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {
-        const installer = await core.group(`download xmake ${version}`, async () => {
+        const installer = await core.group(`download xmake ${String(version)}`, async () => {
             const url = getInstallerUrl(version);
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
@@ -49,7 +50,7 @@ async function winInstall(version) {
             core.info(`downloaded to ${exe}`);
             return exe;
         });
-        toolDir = await core.group(`install xmake ${version}`, async () => {
+        toolDir = await core.group(`install xmake ${String(version)}`, async () => {
             const binDir = path.join(os.tmpdir(), `xmake-${version.sha}`);
             core.info(`installing to ${binDir}`);
             await exec_1.exec(`"${installer}" /NOADMIN /S /D=${binDir}`);

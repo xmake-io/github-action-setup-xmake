@@ -41,7 +41,7 @@ export async function winInstall(version: Version): Promise<void> {
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {
-        const installer = await core.group(`download xmake ${version}`, async () => {
+        const installer = await core.group(`download xmake ${String(version)}`, async () => {
             const url = getInstallerUrl(version);
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
@@ -50,7 +50,7 @@ export async function winInstall(version: Version): Promise<void> {
             core.info(`downloaded to ${exe}`);
             return exe;
         });
-        toolDir = await core.group(`install xmake ${version}`, async () => {
+        toolDir = await core.group(`install xmake ${String(version)}`, async () => {
             const binDir = path.join(os.tmpdir(), `xmake-${version.sha}`);
             core.info(`installing to ${binDir}`);
             await exec(`"${installer}" /NOADMIN /S /D=${binDir}`);

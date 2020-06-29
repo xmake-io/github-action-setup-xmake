@@ -16,7 +16,8 @@ async function run() {
         await exec_1.exec('xmake --version');
     }
     catch (error) {
-        core.setFailed(error.message);
+        const ex = error;
+        core.setFailed(ex.message);
     }
 }
 run().catch((e) => core.error(e));
