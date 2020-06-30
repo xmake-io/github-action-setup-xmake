@@ -19,6 +19,7 @@ const core = require("@actions/core");
 const semver = require("semver");
 const git_1 = require("./git");
 const interfaces_1 = require("./interfaces");
+const DEFAULT_REPO = interfaces_1.Repo('xmake-io/xmake');
 const VERSIONS = new Map();
 async function getVersions(repo) {
     const cache = VERSIONS.get(repo);
@@ -102,7 +103,7 @@ async function selectVersion(version) {
     version = (version !== null && version !== void 0 ? version : core.getInput('xmake-version')) || 'latest';
     if (version.toLowerCase() === 'latest')
         version = '';
-    let repo = interfaces_1.Repo('xmake-io/xmake');
+    let repo = DEFAULT_REPO;
     let ret;
     {
         const match = /^([^/#]+\/[^/#]+)#(.+)$/.exec(version);
@@ -136,7 +137,7 @@ async function selectVersion(version) {
     if (!ret) {
         throw new Error(`Invalid input xmake-version ${core.getInput('xmake-version')}`);
     }
-    core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})`);
+    core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` + (repo !== DEFAULT_REPO ? ` of ${repo}` : ''));
     return ret;
 }
 exports.selectVersion = selectVersion;

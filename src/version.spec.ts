@@ -275,6 +275,7 @@ import { Repo } from './interfaces';
 describe('selectVersion', () => {
     it('should return correct version for latest', async () => {
         await expect(selectVersion('latest')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'v2.3.2',
             sha: '31bacc4f76101e6a865ec254c48d8bcba456378f',
             type: 'tags',
@@ -287,6 +288,7 @@ describe('selectVersion', () => {
     });
     it('should return correct version for given', async () => {
         await expect(selectVersion('v1.0.1')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'v1.0.1',
             sha: '723ec3e970e17f48a601fe2a919b9802b5e516fa',
             type: 'tags',
@@ -294,6 +296,7 @@ describe('selectVersion', () => {
     });
     it('should return correct version for range', async () => {
         await expect(selectVersion('>=2')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'v2.3.2',
             sha: '31bacc4f76101e6a865ec254c48d8bcba456378f',
             type: 'tags',
@@ -302,6 +305,7 @@ describe('selectVersion', () => {
 
     it('should return correct branch', async () => {
         await expect(selectVersion('branch@master')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'master',
             sha: 'efad01e547f30d66d90e486c91c3afa0dbaceed3',
             type: 'heads',
@@ -314,6 +318,7 @@ describe('selectVersion', () => {
 
     it('should return correct pr', async () => {
         await expect(selectVersion('pr@708')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'pr#708',
             sha: 'af28dba1f52990cb7b6c3c8f69f1f1bcf017c90a',
             type: 'pull',
@@ -330,6 +335,7 @@ describe('selectVersion', () => {
 
     it('should return branch of sha', async () => {
         await expect(selectVersion('sha@efad01e547f30d66d90e486c91c3afa0dbaceed3')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'master',
             sha: 'efad01e547f30d66d90e486c91c3afa0dbaceed3',
             type: 'heads',
@@ -338,6 +344,7 @@ describe('selectVersion', () => {
 
     it('should return tag of sha', async () => {
         await expect(selectVersion('sha@31bacc4f76101e6a865ec254c48d8bcba456378f')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'v2.3.2',
             sha: '31bacc4f76101e6a865ec254c48d8bcba456378f',
             type: 'tags',
@@ -346,6 +353,7 @@ describe('selectVersion', () => {
 
     it('should return pr merge of sha', async () => {
         await expect(selectVersion('sha@2f93475049575ed5e44699daa378239bc141aad3')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'pr#217',
             sha: '2f93475049575ed5e44699daa378239bc141aad3',
             type: 'pull',
@@ -354,6 +362,7 @@ describe('selectVersion', () => {
 
     it('should not return pr head of sha if merge present', async () => {
         await expect(selectVersion('sha@905a8607f3f31ab9efeb68684d40df8284683f3a')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'sha#905a8607f3f31ab9efeb68684d40df8284683f3a',
             sha: '905a8607f3f31ab9efeb68684d40df8284683f3a',
             type: 'sha',
@@ -362,6 +371,7 @@ describe('selectVersion', () => {
 
     it('should return pr head of sha', async () => {
         await expect(selectVersion('sha@af28dba1f52990cb7b6c3c8f69f1f1bcf017c90a')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'pr#708',
             sha: 'af28dba1f52990cb7b6c3c8f69f1f1bcf017c90a',
             type: 'pull',
@@ -370,6 +380,7 @@ describe('selectVersion', () => {
 
     it('should return correct normalized sha', async () => {
         await expect(selectVersion('sha@Af28dba1f52990cb7b6c3c8f69f1f1bcf017c90b')).resolves.toEqual({
+            repo: 'xmake-io/xmake',
             version: 'sha#af28dba1f52990cb7b6c3c8f69f1f1bcf017c90b',
             sha: 'af28dba1f52990cb7b6c3c8f69f1f1bcf017c90b',
             type: 'sha',
@@ -390,6 +401,7 @@ describe('selectVersion', () => {
 
     it('should return correct repo', async () => {
         await expect(selectVersion('my/xmake#branch@patch-1')).resolves.toEqual({
+            repo: 'my/xmake',
             version: 'patch-1',
             sha: '77cd51991f8b9c76e54d668103a06ca6c597e64a',
             type: 'heads',

@@ -3,6 +3,8 @@ import * as semver from 'semver';
 import { lsRemote } from './git';
 import { RefDic, Sha, Version, Repo } from './interfaces';
 
+const DEFAULT_REPO = Repo('xmake-io/xmake');
+
 const VERSIONS = new Map<Repo, RefDic>();
 async function getVersions(repo: Repo): Promise<RefDic> {
     const cache = VERSIONS.get(repo);
@@ -86,7 +88,7 @@ export async function selectVersion(version?: string): Promise<Version> {
     version = (version ?? core.getInput('xmake-version')) || 'latest';
     if (version.toLowerCase() === 'latest') version = '';
 
-    let repo = Repo('xmake-io/xmake');
+    let repo = DEFAULT_REPO;
     let ret: Version | undefined;
     {
         const match = /^([^/#]+\/[^/#]+)#(.+)$/.exec(version);
@@ -121,6 +123,6 @@ export async function selectVersion(version?: string): Promise<Version> {
     if (!ret) {
         throw new Error(`Invalid input xmake-version ${core.getInput('xmake-version')}`);
     }
-    core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})`);
+    core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` + (repo !== DEFAULT_REPO ? ` of ${repo}` : ''));
     return ret;
 }
