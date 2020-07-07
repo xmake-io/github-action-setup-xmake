@@ -12,7 +12,9 @@ export async function unixInstall(version: Version): Promise<void> {
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {
-        const sourceDir = await core.group(`download xmake ${String(version)}`, () => git.create(version.repo, version.sha));
+        const sourceDir = await core.group(`download xmake ${String(version)}`, () =>
+            git.create(version.repo, version.sha),
+        );
         toolDir = await core.group(`install xmake ${String(version)}`, async () => {
             await exec('make', ['build'], { cwd: sourceDir });
             const binDir = path.join(os.tmpdir(), `xmake-${version.sha}`);

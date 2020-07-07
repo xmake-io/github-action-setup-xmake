@@ -49,7 +49,11 @@ export async function create(repo: Repo, ref: Sha): Promise<string> {
     await io.mkdirP(opt.cwd);
     await exec('git', ['init'], opt);
     await exec('git', ['remote', 'add', 'origin', repoUrl(repo)], opt);
-    await exec('git', ['fetch', 'origin', '+refs/pull/*:refs/remotes/origin/pull/*', '+refs/heads/*:refs/remotes/origin/*'], opt);
+    await exec(
+        'git',
+        ['fetch', 'origin', '+refs/pull/*:refs/remotes/origin/pull/*', '+refs/heads/*:refs/remotes/origin/*'],
+        opt,
+    );
     await exec('git', ['checkout', ref], opt);
     await exec('git', ['submodule', 'update', '--init', '--recursive'], opt);
     return opt.cwd;

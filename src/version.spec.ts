@@ -284,7 +284,9 @@ describe('selectVersion', () => {
     it('should throw for no matched', async () => {
         await expect(selectVersion('0.2.3')).rejects.toThrowError('No matched releases of xmake-version 0.2.3');
         await expect(selectVersion('v0.2.3')).rejects.toThrowError('No matched releases of xmake-version 0.2.3');
-        await expect(selectVersion('<0.2.3 > 0.1')).rejects.toThrowError('No matched releases of xmake-version <0.2.3 >=0.2.0');
+        await expect(selectVersion('<0.2.3 > 0.1')).rejects.toThrowError(
+            'No matched releases of xmake-version <0.2.3 >=0.2.0',
+        );
     });
     it('should return correct version for given', async () => {
         await expect(selectVersion('v1.0.1')).resolves.toEqual({
@@ -330,7 +332,9 @@ describe('selectVersion', () => {
     });
 
     it('should throw invalid pr', async () => {
-        await expect(selectVersion('pr@xxx')).rejects.toThrowError('Invalid pull requrest xxx, should be a positive integer');
+        await expect(selectVersion('pr@xxx')).rejects.toThrowError(
+            'Invalid pull requrest xxx, should be a positive integer',
+        );
     });
 
     it('should return branch of sha', async () => {

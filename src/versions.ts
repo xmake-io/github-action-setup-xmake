@@ -15,7 +15,13 @@ async function getVersions(repo: Repo): Promise<RefDic> {
 }
 
 class VersionImpl implements Version {
-    constructor(readonly repo: Repo, readonly version: string, readonly sha: Sha, readonly type: Version['type'], toString: string) {
+    constructor(
+        readonly repo: Repo,
+        readonly version: string,
+        readonly sha: Sha,
+        readonly type: Version['type'],
+        toString: string,
+    ) {
         this.#string = toString;
     }
     readonly #string: string;
@@ -80,7 +86,9 @@ async function selectSha(repo: Repo, sha: string): Promise<Version> {
             return selectPr(repo, Number.parseInt(pr));
         }
     }
-    return Promise.resolve(new VersionImpl(repo, `sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`));
+    return Promise.resolve(
+        new VersionImpl(repo, `sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`),
+    );
 }
 
 export async function selectVersion(version?: string): Promise<Version> {
@@ -123,6 +131,9 @@ export async function selectVersion(version?: string): Promise<Version> {
     if (!ret) {
         throw new Error(`Invalid input xmake-version ${core.getInput('xmake-version')}`);
     }
-    core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` + (repo !== DEFAULT_REPO ? ` of ${repo}` : ''));
+    core.info(
+        `Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` +
+            (repo !== DEFAULT_REPO ? ` of ${repo}` : ''),
+    );
     return ret;
 }

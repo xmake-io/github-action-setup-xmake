@@ -45,7 +45,11 @@ export async function winInstall(version: Version): Promise<void> {
             const url = getInstallerUrl(version);
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
-            const exe = path.format({ ...path.parse(file), ext: '.exe', base: undefined });
+            const exe = path.format({
+                ...path.parse(file),
+                ext: '.exe',
+                base: undefined,
+            });
             await io.mv(file, exe);
             core.info(`downloaded to ${exe}`);
             return exe;

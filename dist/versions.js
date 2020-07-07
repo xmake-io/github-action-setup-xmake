@@ -137,7 +137,8 @@ async function selectVersion(version) {
     if (!ret) {
         throw new Error(`Invalid input xmake-version ${core.getInput('xmake-version')}`);
     }
-    core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` + (repo !== DEFAULT_REPO ? ` of ${repo}` : ''));
+    core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` +
+        (repo !== DEFAULT_REPO ? ` of ${repo}` : ''));
     return ret;
 }
 exports.selectVersion = selectVersion;

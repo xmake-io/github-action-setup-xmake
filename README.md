@@ -1,4 +1,5 @@
 # GitHub Action - Setup xmake
+
 [![Build status](https://github.com/xmake-io/github-action-setup-xmake/workflows/test/badge.svg)](https://github.com/xmake-io/github-action-setup-xmake/actions)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/xmake-io/github-action-setup-xmake)](https://github.com/marketplace/actions/setup-xmake)
 
@@ -15,7 +16,7 @@ Use latest version:
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: latest
+    xmake-version: latest
 ```
 
 Use specified version:
@@ -23,7 +24,7 @@ Use specified version:
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: '2.3.1'
+    xmake-version: '2.3.1'
 ```
 
 Use specified branch:
@@ -31,7 +32,7 @@ Use specified branch:
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: branch@master
+    xmake-version: branch@master
 ```
 
 Use semver:
@@ -39,5 +40,5 @@ Use semver:
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: '>=2.2.6 <=2.3.1'
+    xmake-version: '>=2.2.6 <=2.3.1'
 ```
