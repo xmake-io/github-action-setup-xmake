@@ -22,7 +22,7 @@ jobs:
         # Ensure no changes
         run: |
           git add .
-          if ! git diff --cached --stat --exit-code; then
+          if ! git diff --cached --color=always --stat --exit-code; then
             echo "##[error] Found changed files after build. Please 'yarn build && npm run format' and check in all changes."
             exit 1
           fi
