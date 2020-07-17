@@ -16,7 +16,7 @@
     "lint": "eslint --fix src/**/*.ts",
     "format": "prettier --write .",
     "test": "jest",
-    "release": "yarn format && yarn lint && yarn rebuild && yarn test && yarn install --production --no-bin-links"
+    "release": "yarn format && yarn lint && yarn rebuild && yarn install --production --frozen-lockfile --no-bin-links"
   },
   "dependencies": {
     "@actions/core": "^1.2.4",
