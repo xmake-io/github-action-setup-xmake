@@ -1,18 +1,36 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.winInstall = void 0;
-const core = require("@actions/core");
+const core = __importStar(require("@actions/core"));
 const exec_1 = require("@actions/exec");
-const io = require("@actions/io");
-const toolCache = require("@actions/tool-cache");
-const os = require("os");
-const path = require("path");
-const semver = require("semver");
+const io = __importStar(require("@actions/io"));
+const toolCache = __importStar(require("@actions/tool-cache"));
+const os = __importStar(require("os"));
+const path = __importStar(require("path"));
+const semver = __importStar(require("semver"));
 function getInstallerUrl(version) {
     const ver = version.version;
     switch (version.type) {
         case 'heads': {
-            // we only use appveyor ci artifacts for branch version
             const arch = os.arch() === 'x64' ? 'x64' : 'x86';
             return `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?branch=${ver}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`;
         }
@@ -23,21 +41,21 @@ function getInstallerUrl(version) {
             throw new Error('Sha builds for windows is not supported');
         }
         case 'tags': {
-            // we cannot use appveyor ci artifacts, the old version links may be broken.
             const arch = os.arch() === 'x64' ? 'win64' : 'win32';
             return semver.gt(ver, '2.2.6')
                 ? `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.${arch}.exe`
                 : `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.exe`;
         }
         default: {
-            // check that we have tested all types
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const _ = version.type;
             throw new Error('Unknown version type');
         }
     }
 }
 async function winInstall(version) {
+    if (version.type === 'local') {
+        throw new Error('Local builds for windows is not supported');
+    }
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {

@@ -1,7 +1,8 @@
 import * as core from '@actions/core';
-import * as semver from 'semver';
+import semver from 'semver';
 import { lsRemote } from './git';
-import { RefDic, Sha, Version, Repo } from './interfaces';
+import { RefDic, Sha, Version, Repo, GitVersion, LocalVersion } from './interfaces';
+import p from 'path';
 
 const DEFAULT_REPO = Repo('xmake-io/xmake');
 
@@ -14,12 +15,12 @@ async function getVersions(repo: Repo): Promise<RefDic> {
     return result;
 }
 
-class VersionImpl implements Version {
+class GitVersionImpl implements GitVersion {
     constructor(
         readonly repo: Repo,
         readonly version: string,
         readonly sha: Sha,
-        readonly type: Version['type'],
+        readonly type: GitVersion['type'],
         toString: string,
     ) {
         this.#string = toString;
@@ -30,10 +31,18 @@ class VersionImpl implements Version {
     }
 }
 
+class LocalVersionImpl implements LocalVersion {
+    readonly type = 'local';
+    readonly version: undefined;
+    constructor(readonly path: string) {
+        this.path = p.resolve(path);
+    }
+}
+
 async function selectBranch(repo: Repo, branch: string): Promise<Version> {
     const versions = await getVersions(repo);
     if (branch in versions.heads) {
-        return new VersionImpl(repo, branch, versions.heads[branch], 'heads', `branch ${branch}`);
+        return new GitVersionImpl(repo, branch, versions.heads[branch], 'heads', `branch ${branch}`);
     }
     throw new Error(`Branch ${branch} not found`);
 }
@@ -41,10 +50,10 @@ async function selectBranch(repo: Repo, branch: string): Promise<Version> {
 async function selectPr(repo: Repo, pr: number): Promise<Version> {
     const versions = await getVersions(repo);
     if (pr in versions.pull) {
-        const prheads = versions.pull[pr];
-        const sha = prheads.merge ?? prheads.head;
+        const prHeads = versions.pull[pr];
+        const sha = prHeads.merge ?? prHeads.head;
         if (sha) {
-            return new VersionImpl(repo, `pr#${pr}`, sha, 'pull', `pull request #${pr}`);
+            return new GitVersionImpl(repo, `pr#${pr}`, sha, 'pull', `pull request #${pr}`);
         }
     }
     throw new Error(`Pull requrest #${pr} not found`);
@@ -64,7 +73,7 @@ async function selectSemver(repo: Repo, version: string): Promise<Version> {
     }
 
     const sha = versions.tags[ver];
-    return new VersionImpl(repo, ver, sha, 'tags', ver);
+    return new GitVersionImpl(repo, ver, sha, 'tags', ver);
 }
 
 async function selectSha(repo: Repo, sha: string): Promise<Version> {
@@ -87,7 +96,7 @@ async function selectSha(repo: Repo, sha: string): Promise<Version> {
         }
     }
     return Promise.resolve(
-        new VersionImpl(repo, `sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`),
+        new GitVersionImpl(repo, `sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`),
     );
 }
 
@@ -98,6 +107,12 @@ export async function selectVersion(version?: string): Promise<Version> {
 
     let repo = DEFAULT_REPO;
     let ret: Version | undefined;
+    // select local
+    if (version.startsWith('local#')) {
+        const path = version.slice('local#'.length);
+        ret = new LocalVersionImpl(path);
+    }
+
     {
         const match = /^([^/#]+\/[^/#]+)#(.+)$/.exec(version);
         if (match) {
@@ -131,9 +146,13 @@ export async function selectVersion(version?: string): Promise<Version> {
     if (!ret) {
         throw new Error(`Invalid input xmake-version ${core.getInput('xmake-version')}`);
     }
-    core.info(
-        `Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` +
-            (repo !== DEFAULT_REPO ? ` of ${repo}` : ''),
-    );
+    if (ret.type === 'local') {
+        core.info(`Use local xmake at '${ret.path}'`);
+    } else {
+        core.info(
+            `Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` +
+                (repo !== DEFAULT_REPO ? ` of ${repo}` : ''),
+        );
+    }
     return ret;
 }

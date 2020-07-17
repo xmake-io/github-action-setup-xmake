@@ -271,6 +271,7 @@ jest.mock('./git', () => ({
 }));
 import { selectVersion } from './versions';
 import { Repo } from './interfaces';
+import { resolve } from 'path';
 
 describe('selectVersion', () => {
     it('should return correct version for latest', async () => {
@@ -409,6 +410,27 @@ describe('selectVersion', () => {
             version: 'patch-1',
             sha: '77cd51991f8b9c76e54d668103a06ca6c597e64a',
             type: 'heads',
+        });
+    });
+
+    it('should return local cwd', async () => {
+        await expect(selectVersion('local#')).resolves.toEqual({
+            path: process.cwd(),
+            type: 'local',
+        });
+    });
+
+    it('should return absolute path', async () => {
+        await expect(selectVersion('local#/usr/bin')).resolves.toEqual({
+            path: resolve('/usr/bin'),
+            type: 'local',
+        });
+    });
+
+    it('should return relative path', async () => {
+        await expect(selectVersion('local#xmake')).resolves.toEqual({
+            path: resolve('xmake'),
+            type: 'local',
         });
     });
 });

@@ -33,9 +33,17 @@ export type RefDic = {
     >;
 };
 
-export interface Version {
+export interface GitVersion {
     version: string;
     sha: Sha;
     type: keyof RefDic | 'sha';
     repo: Repo;
 }
+
+export interface LocalVersion {
+    type: 'local';
+    path: string;
+    version: undefined;
+}
+
+export type Version = GitVersion | LocalVersion;

@@ -5,9 +5,9 @@ import * as toolCache from '@actions/tool-cache';
 import * as os from 'os';
 import * as path from 'path';
 import * as semver from 'semver';
-import { Version } from './interfaces';
+import { Version, GitVersion } from './interfaces';
 
-function getInstallerUrl(version: Version): string {
+function getInstallerUrl(version: GitVersion): string {
     const ver = version.version;
     switch (version.type) {
         case 'heads': {
@@ -30,7 +30,6 @@ function getInstallerUrl(version: Version): string {
         }
         default: {
             // check that we have tested all types
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const _: never = version.type;
             throw new Error('Unknown version type');
         }
@@ -38,6 +37,9 @@ function getInstallerUrl(version: Version): string {
 }
 
 export async function winInstall(version: Version): Promise<void> {
+    if (version.type === 'local') {
+        throw new Error('Local builds for windows is not supported');
+    }
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {

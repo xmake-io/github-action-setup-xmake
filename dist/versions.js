@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, privateMap, value) {
     if (!privateMap.has(receiver)) {
         throw new TypeError("attempted to set private field on non-instance");
@@ -12,13 +31,17 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     }
     return privateMap.get(receiver);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 var _string;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.selectVersion = void 0;
-const core = require("@actions/core");
-const semver = require("semver");
+const core = __importStar(require("@actions/core"));
+const semver_1 = __importDefault(require("semver"));
 const git_1 = require("./git");
 const interfaces_1 = require("./interfaces");
+const path_1 = __importDefault(require("path"));
 const DEFAULT_REPO = interfaces_1.Repo('xmake-io/xmake');
 const VERSIONS = new Map();
 async function getVersions(repo) {
@@ -29,7 +52,7 @@ async function getVersions(repo) {
     VERSIONS.set(repo, result);
     return result;
 }
-class VersionImpl {
+class GitVersionImpl {
     constructor(repo, version, sha, type, toString) {
         this.repo = repo;
         this.version = version;
@@ -43,10 +66,17 @@ class VersionImpl {
     }
 }
 _string = new WeakMap();
+class LocalVersionImpl {
+    constructor(path) {
+        this.path = path;
+        this.type = 'local';
+        this.path = path_1.default.resolve(path);
+    }
+}
 async function selectBranch(repo, branch) {
     const versions = await getVersions(repo);
     if (branch in versions.heads) {
-        return new VersionImpl(repo, branch, versions.heads[branch], 'heads', `branch ${branch}`);
+        return new GitVersionImpl(repo, branch, versions.heads[branch], 'heads', `branch ${branch}`);
     }
     throw new Error(`Branch ${branch} not found`);
 }
@@ -54,27 +84,26 @@ async function selectPr(repo, pr) {
     var _a;
     const versions = await getVersions(repo);
     if (pr in versions.pull) {
-        const prheads = versions.pull[pr];
-        const sha = (_a = prheads.merge) !== null && _a !== void 0 ? _a : prheads.head;
+        const prHeads = versions.pull[pr];
+        const sha = (_a = prHeads.merge) !== null && _a !== void 0 ? _a : prHeads.head;
         if (sha) {
-            return new VersionImpl(repo, `pr#${pr}`, sha, 'pull', `pull request #${pr}`);
+            return new GitVersionImpl(repo, `pr#${pr}`, sha, 'pull', `pull request #${pr}`);
         }
     }
     throw new Error(`Pull requrest #${pr} not found`);
 }
 async function selectSemver(repo, version) {
-    // check version valid
-    const v = new semver.Range(version);
+    const v = new semver_1.default.Range(version);
     if (!v) {
         throw new Error(`Invalid semver`);
     }
     const versions = await getVersions(repo);
-    const ver = semver.maxSatisfying(Object.keys(versions.tags), v);
+    const ver = semver_1.default.maxSatisfying(Object.keys(versions.tags), v);
     if (!ver) {
         throw new Error(`No matched releases of xmake-version ${v.format()}`);
     }
     const sha = versions.tags[ver];
-    return new VersionImpl(repo, ver, sha, 'tags', ver);
+    return new GitVersionImpl(repo, ver, sha, 'tags', ver);
 }
 async function selectSha(repo, sha) {
     var _a;
@@ -96,15 +125,18 @@ async function selectSha(repo, sha) {
             return selectPr(repo, Number.parseInt(pr));
         }
     }
-    return Promise.resolve(new VersionImpl(repo, `sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`));
+    return Promise.resolve(new GitVersionImpl(repo, `sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`));
 }
 async function selectVersion(version) {
-    // get version string
     version = (version !== null && version !== void 0 ? version : core.getInput('xmake-version')) || 'latest';
     if (version.toLowerCase() === 'latest')
         version = '';
     let repo = DEFAULT_REPO;
     let ret;
+    if (version.startsWith('local#')) {
+        const path = version.slice('local#'.length);
+        ret = new LocalVersionImpl(path);
+    }
     {
         const match = /^([^/#]+\/[^/#]+)#(.+)$/.exec(version);
         if (match) {
@@ -112,12 +144,10 @@ async function selectVersion(version) {
             version = match[2];
         }
     }
-    // select branch
     if (version.startsWith('branch@')) {
         const branch = version.substr('branch@'.length);
         ret = await selectBranch(repo, branch);
     }
-    // select pr
     if (version.startsWith('pr@')) {
         const pr = Number.parseInt(version.substr('pr@'.length));
         if (Number.isNaN(pr) || pr <= 0) {
@@ -125,20 +155,23 @@ async function selectVersion(version) {
         }
         ret = await selectPr(repo, pr);
     }
-    // select sha
     if (version.startsWith('sha@')) {
         const sha = version.substr('sha@'.length);
         ret = await selectSha(repo, sha);
     }
-    // select version
-    if (semver.validRange(version)) {
+    if (semver_1.default.validRange(version)) {
         ret = await selectSemver(repo, version);
     }
     if (!ret) {
         throw new Error(`Invalid input xmake-version ${core.getInput('xmake-version')}`);
     }
-    core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` +
-        (repo !== DEFAULT_REPO ? ` of ${repo}` : ''));
+    if (ret.type === 'local') {
+        core.info(`Use local xmake at '${ret.path}'`);
+    }
+    else {
+        core.info(`Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` +
+            (repo !== DEFAULT_REPO ? ` of ${repo}` : ''));
+    }
     return ret;
 }
 exports.selectVersion = selectVersion;

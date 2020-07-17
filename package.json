@@ -1,43 +1,44 @@
 {
-    "name": "github-action-setup-xmake",
-    "version": "1.0.3",
-    "description": "Set up your GitHub Actions workflow with a specific version of xmake",
-    "main": "dist/index.js",
-    "author": "OpportunityLiu",
-    "license": "GPL-3.0-or-later",
-    "repository": "https://github.com/xmake-io/github-action-setup-xmake.git",
-    "homepage": "https://github.com/xmake-io/github-action-setup-xmake",
-    "scripts": {
-        "init": "yarn install && yarn clean",
-        "watch": "tsc --watch",
-        "build": "tsc --build ./tsconfig.build.json",
-        "rebuild": "yarn clean && yarn build",
-        "clean": "rimraf dist",
-        "lint": "eslint --fix src/**/*.ts",
-        "test": "jest",
-        "release": "yarn rebuild && yarn lint && yarn install --production --no-bin-links"
-    },
-    "dependencies": {
-        "@actions/core": "^1.2.4",
-        "@actions/exec": "^1.0.4",
-        "@actions/io": "^1.0.1",
-        "@actions/tool-cache": "^1.5.5",
-        "semver": "^7.3.2"
-    },
-    "devDependencies": {
-        "@types/jest": "^26.0.3",
-        "@types/node": "^14.0.14",
-        "@types/semver": "^7.3.1",
-        "@typescript-eslint/eslint-plugin": "^3.4.0",
-        "@typescript-eslint/parser": "^3.4.0",
-        "eslint": "^7.3.1",
-        "eslint-config-prettier": "^6.11.0",
-        "eslint-plugin-prettier": "^3.1.4",
-        "jest": "^26.1.0",
-        "prettier": "^2.0.5",
-        "rimraf": "^3.0.2",
-        "ts-jest": "^26.1.1",
-        "type-fest": "^0.16.0",
-        "typescript": "^3.9.5"
-    }
+  "name": "github-action-setup-xmake",
+  "version": "1.0.3",
+  "description": "Set up your GitHub Actions workflow with a specific version of xmake",
+  "main": "dist/index.js",
+  "author": "OpportunityLiu",
+  "license": "GPL-3.0-or-later",
+  "repository": "https://github.com/xmake-io/github-action-setup-xmake.git",
+  "homepage": "https://github.com/xmake-io/github-action-setup-xmake",
+  "scripts": {
+    "init": "yarn install && yarn clean",
+    "watch": "tsc --watch",
+    "build": "tsc --build ./tsconfig.build.json",
+    "rebuild": "yarn clean && yarn build",
+    "clean": "rimraf dist",
+    "lint": "eslint --fix src/**/*.ts",
+    "format": "prettier --write .",
+    "test": "jest",
+    "release": "yarn format && yarn lint && yarn rebuild && yarn test && yarn install --production --no-bin-links"
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/exec": "^1.0.4",
+    "@actions/io": "^1.0.1",
+    "@actions/tool-cache": "^1.6.0",
+    "semver": "^7.3.2"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.3",
+    "@types/node": "^14.0.14",
+    "@types/semver": "^7.3.1",
+    "@typescript-eslint/eslint-plugin": "^3.4.0",
+    "@typescript-eslint/parser": "^3.4.0",
+    "eslint": "^7.3.1",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "jest": "^26.1.0",
+    "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
+    "ts-jest": "^26.1.1",
+    "type-fest": "^0.16.0",
+    "typescript": "^3.9.5"
+  }
 }

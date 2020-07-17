@@ -1,28 +1,28 @@
 name: checkin
 
 on:
-    - push
-    - pull_request
+  - push
+  - pull_request
 
 jobs:
-    checkin:
-        runs-on: ubuntu-latest
+  checkin:
+    runs-on: ubuntu-latest
 
-        steps:
-            - uses: actions/checkout@v1
-            - name: install
-              run: yarn install
-            - name: build
-              run: yarn build
-            - name: test
-              run: yarn test
-            - name: release
-              run: yarn release
-            - name: 'check for uncommitted changes'
-              # Ensure no changes
-              run: |
-                  git add .
-                  if ! git diff --cached --color=always --exit-code -- . ':!node_modules'; then
-                    echo "::error::Found changed files after build. Please run 'yarn release' and check in all changes."
-                    exit 1
-                  fi
+    steps:
+      - uses: actions/checkout@v1
+      - name: install
+        run: yarn install
+      - name: build
+        run: yarn build
+      - name: test
+        run: yarn test
+      - name: release
+        run: yarn release
+      - name: 'check for uncommitted changes'
+        # Ensure no changes
+        run: |
+          git add .
+          if ! git diff --cached --color=always --exit-code -- . ':!node_modules'; then
+            echo "::error::Found changed files after build. Please run 'yarn release' and check in all changes."
+            exit 1
+          fi

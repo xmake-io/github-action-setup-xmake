@@ -1,24 +1,24 @@
 name: test
 
 on:
-    - push
+  - push
 
 jobs:
-    build:
-        strategy:
-            matrix:
-                os: [ubuntu-latest, windows-latest, macOS-latest]
-                version: [latest, branch@master]
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        version: [latest, branch@master]
 
-        runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
 
-        steps:
-            - uses: actions/checkout@v1
-            - uses: xmake-io/github-action-setup-xmake@master
-              with:
-                  xmake-version: ${{ matrix.version }}
-            - name: Run tests
-              run: |
-                  xmake create -P test
-                  xmake build -P test
-                  xmake run -P test
+    steps:
+      - uses: actions/checkout@v1
+      - uses: xmake-io/github-action-setup-xmake@master
+        with:
+          xmake-version: ${{ matrix.version }}
+      - name: Run tests
+        run: |
+          xmake create -P test
+          xmake build -P test
+          xmake run -P test
