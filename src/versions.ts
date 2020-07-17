@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
-import semver from 'semver';
+import * as semver from 'semver';
 import { lsRemote } from './git';
 import { RefDic, Sha, Version, Repo, GitVersion, LocalVersion } from './interfaces';
-import p from 'path';
+import * as p from 'path';
 
 const DEFAULT_REPO = Repo('xmake-io/xmake');
 

@@ -31,17 +31,14 @@ var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (
     }
     return privateMap.get(receiver);
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var _string;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.selectVersion = void 0;
 const core = __importStar(require("@actions/core"));
-const semver_1 = __importDefault(require("semver"));
+const semver = __importStar(require("semver"));
 const git_1 = require("./git");
 const interfaces_1 = require("./interfaces");
-const path_1 = __importDefault(require("path"));
+const p = __importStar(require("path"));
 const DEFAULT_REPO = interfaces_1.Repo('xmake-io/xmake');
 const VERSIONS = new Map();
 async function getVersions(repo) {
@@ -70,7 +67,7 @@ class LocalVersionImpl {
     constructor(path) {
         this.path = path;
         this.type = 'local';
-        this.path = path_1.default.resolve(path);
+        this.path = p.resolve(path);
     }
 }
 async function selectBranch(repo, branch) {
@@ -93,12 +90,12 @@ async function selectPr(repo, pr) {
     throw new Error(`Pull requrest #${pr} not found`);
 }
 async function selectSemver(repo, version) {
-    const v = new semver_1.default.Range(version);
+    const v = new semver.Range(version);
     if (!v) {
         throw new Error(`Invalid semver`);
     }
     const versions = await getVersions(repo);
-    const ver = semver_1.default.maxSatisfying(Object.keys(versions.tags), v);
+    const ver = semver.maxSatisfying(Object.keys(versions.tags), v);
     if (!ver) {
         throw new Error(`No matched releases of xmake-version ${v.format()}`);
     }
@@ -159,7 +156,7 @@ async function selectVersion(version) {
         const sha = version.substr('sha@'.length);
         ret = await selectSha(repo, sha);
     }
-    if (semver_1.default.validRange(version)) {
+    if (semver.validRange(version)) {
         ret = await selectSemver(repo, version);
     }
     if (!ret) {

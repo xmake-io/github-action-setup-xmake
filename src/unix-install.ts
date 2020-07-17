@@ -1,10 +1,10 @@
-import core from '@actions/core';
+import * as core from '@actions/core';
 import { exec } from '@actions/exec';
-import io from '@actions/io';
-import toolCache from '@actions/tool-cache';
-import os from 'os';
-import path from 'path';
-import semver from 'semver';
+import * as io from '@actions/io';
+import * as toolCache from '@actions/tool-cache';
+import * as os from 'os';
+import * as path from 'path';
+import * as semver from 'semver';
 import * as git from './git';
 import { Version } from './interfaces';
 
