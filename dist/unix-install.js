@@ -1,33 +1,14 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.unixInstall = void 0;
-const core = __importStar(require("@actions/core"));
+const core = require("@actions/core");
 const exec_1 = require("@actions/exec");
-const io = __importStar(require("@actions/io"));
-const toolCache = __importStar(require("@actions/tool-cache"));
-const os = __importStar(require("os"));
-const path = __importStar(require("path"));
-const semver = __importStar(require("semver"));
-const git = __importStar(require("./git"));
+const io = require("@actions/io");
+const toolCache = require("@actions/tool-cache");
+const os = require("os");
+const path = require("path");
+const semver = require("semver");
+const git = require("./git");
 async function install(sourceDir, binDir) {
     await exec_1.exec('make', ['build'], { cwd: sourceDir });
     await exec_1.exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });
