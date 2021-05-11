@@ -24,7 +24,7 @@ Use specified version:
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: '2.3.1'
+  xmake-version: '2.5.3'
 ```
 
 Use specified branch:
@@ -40,5 +40,5 @@ Use semver:
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: '>=2.2.6 <=2.3.1'
+  xmake-version: '>=2.2.6 <=2.5.3'
 ```
