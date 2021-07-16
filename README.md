@@ -48,7 +48,7 @@ with:
 ### Prepare development environment
 
 ```bash
-yarn init
+yarn install
 ```
 
 ### Draft a new release
