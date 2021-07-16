@@ -36,7 +36,7 @@ function getInstallerUrl(version: GitVersion, latest: GitVersion): string {
 }
 
 export async function winInstall(version: Version, latest: Version): Promise<void> {
-    if (version.type === 'local' || latest.type == 'local') {
+    if (version.type === 'local' || latest.type === 'local') {
         throw new Error('Local builds for windows is not supported');
     }
     const ver = version.version;

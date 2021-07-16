@@ -35,7 +35,7 @@ function getInstallerUrl(version, latest) {
     }
 }
 async function winInstall(version, latest) {
-    if (version.type === 'local' || latest.type == 'local') {
+    if (version.type === 'local' || latest.type === 'local') {
         throw new Error('Local builds for windows is not supported');
     }
     const ver = version.version;
