@@ -42,3 +42,26 @@ uses: xmake-io/github-action-setup-xmake@v1
 with:
   xmake-version: '>=2.2.6 <=2.5.3'
 ```
+
+## Contributing
+
+### Prepare development environment
+
+```bash
+yarn init
+```
+
+### Draft a new release
+
+```bash
+yarn release
+git add .
+yarn version
+
+# for a minor version or patch of v1
+git tag --delete v1
+git tag v1
+
+git push origin master
+git push --tags --force
+```
