@@ -8,12 +8,13 @@ const toolCache = require("@actions/tool-cache");
 const os = require("os");
 const path = require("path");
 const semver = require("semver");
-function getInstallerUrl(version) {
+function getInstallerUrl(version, latest) {
     const ver = version.version;
     switch (version.type) {
         case 'heads': {
-            const arch = os.arch() === 'x64' ? 'x64' : 'x86';
-            return `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?branch=${ver}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`;
+            const arch = os.arch() === 'x64' ? 'win64' : 'win32';
+            const latestver = latest.version;
+            return `https://github.com/xmake-io/xmake/releases/download/${latestver}/xmake-${ver}.${arch}.exe`;
         }
         case 'pull': {
             throw new Error('PR builds for windows is not supported');
@@ -33,15 +34,15 @@ function getInstallerUrl(version) {
         }
     }
 }
-async function winInstall(version) {
-    if (version.type === 'local') {
+async function winInstall(version, latest) {
+    if (version.type === 'local' || latest.type == 'local') {
         throw new Error('Local builds for windows is not supported');
     }
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {
         const installer = await core.group(`download xmake ${String(version)}`, async () => {
-            const url = getInstallerUrl(version);
+            const url = getInstallerUrl(version, latest);
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
             const exe = path.format({

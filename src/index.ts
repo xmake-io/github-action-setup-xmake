@@ -8,8 +8,12 @@ import { unixInstall } from './unix-install';
 async function run(): Promise<void> {
     try {
         const version = await selectVersion();
-        if (os.platform() === 'win32' || os.platform() === 'cygwin') await winInstall(version);
-        else await unixInstall(version);
+        if (os.platform() === 'win32' || os.platform() === 'cygwin') {
+            const latest = await selectVersion('latest');
+            await winInstall(version, latest);
+        } else {
+            await unixInstall(version);
+        }
         await exec('xmake --version');
     } catch (error) {
         const ex = error as Error;

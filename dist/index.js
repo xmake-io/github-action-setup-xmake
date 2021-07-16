@@ -9,10 +9,13 @@ const unix_install_1 = require("./unix-install");
 async function run() {
     try {
         const version = await versions_1.selectVersion();
-        if (os.platform() === 'win32' || os.platform() === 'cygwin')
-            await win_install_1.winInstall(version);
-        else
+        if (os.platform() === 'win32' || os.platform() === 'cygwin') {
+            const latest = await versions_1.selectVersion('latest');
+            await win_install_1.winInstall(version, latest);
+        }
+        else {
             await unix_install_1.unixInstall(version);
+        }
         await exec_1.exec('xmake --version');
     }
     catch (error) {

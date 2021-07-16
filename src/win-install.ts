@@ -7,13 +7,13 @@ import * as path from 'path';
 import * as semver from 'semver';
 import { Version, GitVersion } from './interfaces';
 
-function getInstallerUrl(version: GitVersion): string {
+function getInstallerUrl(version: GitVersion, latest: GitVersion): string {
     const ver = version.version;
     switch (version.type) {
         case 'heads': {
-            // we only use appveyor ci artifacts for branch version
-            const arch = os.arch() === 'x64' ? 'x64' : 'x86';
-            return `https://ci.appveyor.com/api/projects/waruqi/xmake/artifacts/xmake-installer.exe?branch=${ver}&pr=false&job=Image%3A+Visual+Studio+2017%3B+Platform%3A+${arch}`;
+            const arch = os.arch() === 'x64' ? 'win64' : 'win32';
+            const latestver = latest.version;
+            return `https://github.com/xmake-io/xmake/releases/download/${latestver}/xmake-${ver}.${arch}.exe`;
         }
         case 'pull': {
             throw new Error('PR builds for windows is not supported');
@@ -22,7 +22,6 @@ function getInstallerUrl(version: GitVersion): string {
             throw new Error('Sha builds for windows is not supported');
         }
         case 'tags': {
-            // we cannot use appveyor ci artifacts, the old version links may be broken.
             const arch = os.arch() === 'x64' ? 'win64' : 'win32';
             return semver.gt(ver, '2.2.6')
                 ? `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.${arch}.exe`
@@ -36,15 +35,15 @@ function getInstallerUrl(version: GitVersion): string {
     }
 }
 
-export async function winInstall(version: Version): Promise<void> {
-    if (version.type === 'local') {
+export async function winInstall(version: Version, latest: Version): Promise<void> {
+    if (version.type === 'local' || latest.type == 'local') {
         throw new Error('Local builds for windows is not supported');
     }
     const ver = version.version;
     let toolDir = toolCache.find('xmake', ver);
     if (!toolDir) {
         const installer = await core.group(`download xmake ${String(version)}`, async () => {
-            const url = getInstallerUrl(version);
+            const url = getInstallerUrl(version, latest);
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
             const exe = path.format({

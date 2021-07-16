@@ -8,7 +8,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
-        version: [latest, branch@master]
+        version: [latest, branch@master, branch@dev]
 
     runs-on: ${{ matrix.os }}
 
@@ -19,6 +19,7 @@ jobs:
           xmake-version: ${{ matrix.version }}
       - name: Run tests
         run: |
+          xmake --version
           xmake create -P test
           xmake build -P test
           xmake run -P test
