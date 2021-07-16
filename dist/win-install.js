@@ -1,13 +1,13 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+'use strict';
+Object.defineProperty(exports, '__esModule', { value: true });
 exports.winInstall = void 0;
-const core = require("@actions/core");
-const exec_1 = require("@actions/exec");
-const io = require("@actions/io");
-const toolCache = require("@actions/tool-cache");
-const os = require("os");
-const path = require("path");
-const semver = require("semver");
+const core = require('@actions/core');
+const exec_1 = require('@actions/exec');
+const io = require('@actions/io');
+const toolCache = require('@actions/tool-cache');
+const os = require('os');
+const path = require('path');
+const semver = require('semver');
 function getInstallerUrl(version, latest) {
     const ver = version.version;
     switch (version.type) {
