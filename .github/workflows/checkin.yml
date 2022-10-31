@@ -8,10 +8,19 @@ jobs:
   checkin:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [16.x]
+
     steps:
       - uses: actions/checkout@v1
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
       - name: install
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: build
         run: yarn build
       - name: test
