@@ -10,7 +10,9 @@ inputs:
     required: true
     default: latest
     description: The version to use. Should be a semver range or 'latest'. Or use [{repository}#]branch@{branch_name} to select a branch.
-
+  actions-cache-folder:
+    description: 'Directory to cache xmake in. This folder will go under $GITHUB_HOME (I.e. build dir) and be cached using @actions/cache.'
+    default: ''
 runs:
   using: 'node16'
   main: 'dist/index.js'

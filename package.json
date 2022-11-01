@@ -1,6 +1,6 @@
 {
   "name": "github-action-setup-xmake",
-  "version": "1.0.13",
+  "version": "1.1.0",
   "description": "Set up your GitHub Actions workflow with a specific version of xmake",
   "main": "dist/index.js",
   "author": "OpportunityLiu",
@@ -9,19 +9,20 @@
   "homepage": "https://github.com/xmake-io/github-action-setup-xmake",
   "scripts": {
     "watch": "tsc --watch",
-    "build": "tsc --build ./tsconfig.build.json",
+    "build": "ncc build src/index.ts",
     "rebuild": "yarn clean && yarn build",
     "clean": "rimraf dist",
     "lint": "eslint --fix src/**/*.ts",
     "format": "prettier --write .",
     "test": "jest",
-    "release": "yarn clean && yarn format && yarn lint && yarn build && yarn install --production --frozen-lockfile --no-bin-links"
+    "release": "yarn clean && yarn format && yarn lint && yarn build"
   },
   "dependencies": {
-    "@actions/core": "^1.9.1",
-    "@actions/exec": "^1.1.0",
-    "@actions/io": "^1.1.1",
-    "@actions/tool-cache": "^1.7.1",
+    "@actions/cache": "^3.0.6",
+    "@actions/core": "^1.10.0",
+    "@actions/exec": "^1.1.1",
+    "@actions/io": "^1.1.2",
+    "@actions/tool-cache": "^2.0.1",
     "semver": "^7.3.5"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "@types/semver": "^7.3.7",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "@typescript-eslint/parser": "^4.28.3",
+    "@vercel/ncc": "^0.34.0",
     "eslint": "^7.30.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
@@ -39,5 +41,8 @@
     "ts-jest": "^27.0.3",
     "type-fest": "^1.2.2",
     "typescript": "^4.3.5"
-  }
+  },
+  "contributors": [
+    "Yu Zhu"
+  ]
 }
