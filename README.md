@@ -43,6 +43,15 @@ with:
   xmake-version: '>=2.2.6 <=2.5.3'
 ```
 
+Use action cache:
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: "2.7.2"
+  actions-cache-folder: ".xmake-cache"
+```
+
 ## Contributing
 
 ### Prepare development environment
