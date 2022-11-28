@@ -22,7 +22,9 @@ export async function unixInstall(version: Version): Promise<void> {
     if (version.type !== 'local') {
         const ver = version.version;
         const sha = version.sha;
-        const cacheKey = `xmake-cache-${ver}-${sha}-${os.arch()}-${os.platform()}-${process.env.RUNNER_OS ?? 'unknown'}`;
+        const cacheKey = `xmake-cache-${ver}-${sha}-${os.arch()}-${os.platform()}-${
+            process.env.RUNNER_OS ?? 'unknown'
+        }`;
 
         if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
             const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
