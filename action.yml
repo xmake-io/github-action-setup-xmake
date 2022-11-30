@@ -14,7 +14,7 @@ inputs:
     description: 'Directory to cache xmake in. This folder will go under $GITHUB_HOME (I.e. build dir) and be cached using @actions/cache.'
     default: ''
   actions-cache-key:
-    description: 'Actions cache key.'
+    description: The actions cache key.
     default: ''
 runs:
   using: 'node16'
