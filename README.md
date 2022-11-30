@@ -52,6 +52,16 @@ with:
   actions-cache-folder: '.xmake-cache'
 ```
 
+Use action cache with cachekey:
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.7.2'
+  actions-cache-folder: '.xmake-cache'
+  actions-cache-key: 'archlinux-ci'
+```
+
 ## Contributing
 
 ### Prepare development environment

@@ -18,11 +18,15 @@ async function install(sourceDir: string, binDir: string): Promise<void> {
 export async function unixInstall(version: Version): Promise<void> {
     let toolDir = '';
     const actionsCacheFolder = core.getInput('actions-cache-folder');
+    let actionsCacheKey = core.getInput('actions-cache-key');
+    if (!actionsCacheKey) {
+        actionsCacheKey = '';
+    }
 
     if (version.type !== 'local') {
         const ver = version.version;
         const sha = version.sha;
-        const cacheKey = `xmake-cache-${ver}-${sha}-${os.arch()}-${os.platform()}-${
+        const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${os.arch()}-${os.platform()}-${
             process.env.RUNNER_OS ?? 'unknown'
         }`;
 

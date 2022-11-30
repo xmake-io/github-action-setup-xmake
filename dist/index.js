@@ -70848,10 +70848,14 @@ async function unixInstall(version) {
     var _a;
     let toolDir = '';
     const actionsCacheFolder = core.getInput('actions-cache-folder');
+    let actionsCacheKey = core.getInput('actions-cache-key');
+    if (!actionsCacheKey) {
+        actionsCacheKey = '';
+    }
     if (version.type !== 'local') {
         const ver = version.version;
         const sha = version.sha;
-        const cacheKey = `xmake-cache-${ver}-${sha}-${os.arch()}-${os.platform()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
+        const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${os.arch()}-${os.platform()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
         if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
             const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
             try {
