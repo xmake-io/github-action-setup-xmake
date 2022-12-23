@@ -13,7 +13,7 @@ import { Version } from './interfaces';
 async function install(sourceDir: string, binDir: string): Promise<void> {
     if (fs.existsSync(path.join(sourceDir, 'configure'))) {
         await exec('sh', ['./configure'], { cwd: sourceDir });
-        await exec('make', ["-j6"], { cwd: sourceDir });
+        await exec('make', ['-j6'], { cwd: sourceDir });
         await exec('make', ['install', `PREFIX=${binDir}`], { cwd: sourceDir });
     } else {
         await exec('make', ['-j6'], { cwd: sourceDir });
