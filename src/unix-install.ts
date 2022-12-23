@@ -11,8 +11,14 @@ import * as git from './git';
 import { Version } from './interfaces';
 
 async function install(sourceDir: string, binDir: string): Promise<void> {
-    await exec('make', ['build'], { cwd: sourceDir });
-    await exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });
+    if (fs.existsSync(path.join(sourceDir, 'configure'))) {
+        await exec('sh', ['./configure'], { cwd: sourceDir });
+        await exec('make', [], { cwd: sourceDir });
+        await exec('make', ['install', `PREFIX=${binDir}`], { cwd: sourceDir });
+    } else {
+        await exec('make', ['build'], { cwd: sourceDir });
+        await exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });
+    }
 }
 
 export async function unixInstall(version: Version): Promise<void> {

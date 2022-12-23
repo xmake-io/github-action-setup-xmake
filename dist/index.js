@@ -70865,8 +70865,15 @@ const path = __nccwpck_require__(1017);
 const semver = __nccwpck_require__(1383);
 const git = __nccwpck_require__(6350);
 async function install(sourceDir, binDir) {
-    await exec_1.exec('make', ['build'], { cwd: sourceDir });
-    await exec_1.exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });
+    if (fs.existsSync(path.join(sourceDir, 'configure'))) {
+        await exec_1.exec('sh', ['./configure'], { cwd: sourceDir });
+        await exec_1.exec('make', [], { cwd: sourceDir });
+        await exec_1.exec('make', ['install', `PREFIX=${binDir}`], { cwd: sourceDir });
+    }
+    else {
+        await exec_1.exec('make', ['build'], { cwd: sourceDir });
+        await exec_1.exec('make', ['install', `prefix=${binDir}`], { cwd: sourceDir });
+    }
 }
 async function unixInstall(version) {
     var _a;
