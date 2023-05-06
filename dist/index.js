@@ -71442,7 +71442,7 @@ async function run() {
         else {
             await unix_install_1.unixInstall(version);
         }
-        await exec_1.exec('xmake --version');
+        await exec_1.exec('xmake --root --version');
     }
     catch (error) {
         const ex = error;

@@ -14,7 +14,7 @@ async function run(): Promise<void> {
         } else {
             await unixInstall(version);
         }
-        await exec('xmake --version');
+        await exec('xmake --root --version');
     } catch (error) {
         const ex = error as Error;
         core.setFailed(ex.message);
