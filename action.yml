@@ -17,5 +17,5 @@ inputs:
     description: The actions cache key.
     default: ''
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
