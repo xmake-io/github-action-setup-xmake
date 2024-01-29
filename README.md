@@ -67,15 +67,15 @@ with:
 ### Prepare development environment
 
 ```bash
-yarn install
+pnpm install
 ```
 
 ### Draft a new release
 
 ```bash
-yarn release
+pnpm release
 git add .
-yarn version
+pnpm version [new-version]
 
 # for a minor version or patch of v1
 git tag --delete v1

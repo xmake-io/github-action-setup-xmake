@@ -7,6 +7,6 @@
     "module": "commonjs",
     "target": "es2018",
     "outDir": "dist",
-    "types": ["node", "jest"]
-  }
+    "types": ["node", "jest"],
+  },
 }

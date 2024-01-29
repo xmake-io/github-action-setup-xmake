@@ -21,4 +21,4 @@ async function run(): Promise<void> {
     }
 }
 
-run().catch((e) => core.error(e));
+run().catch((e: Error) => core.error(e));

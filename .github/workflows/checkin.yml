@@ -8,25 +8,19 @@ jobs:
   checkin:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        node-version: [16.x]
-
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
+      - uses: actions/checkout@v4
       - name: install
-        run: yarn install --frozen-lockfile
+        uses: NullVoxPopuli/action-setup-pnpm@v2
+        with:
+          node-version: 20
+          pnpm-version: 8
       - name: build
-        run: yarn build
+        run: pnpm build
       - name: test
-        run: yarn test
+        run: pnpm test
       - name: release
-        run: yarn release
+        run: pnpm release
       - name: 'check for uncommitted changes'
         # Ensure no changes
         run: |
