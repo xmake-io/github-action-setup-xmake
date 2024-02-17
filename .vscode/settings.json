@@ -1,5 +1,5 @@
 {
-  "npm.packageManager": "yarn",
+  "npm.packageManager": "pnpm",
   "eslint.validate": ["javascript", "javascriptreact", "typescript", "typescriptreact", "vue"],
   "eslint.enable": true,
   "files.autoSave": "off",

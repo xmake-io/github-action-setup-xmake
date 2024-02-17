@@ -26,6 +26,6 @@ jobs:
         run: |
           git add .
           if ! git diff --cached --color=always --exit-code -- . ':!node_modules'; then
-            echo "::error::Found changed files after build. Please run 'yarn release' and check in all changes."
+            echo "::error::Found changed files after build. Please run 'pnpm release' and check in all changes."
             exit 1
           fi
