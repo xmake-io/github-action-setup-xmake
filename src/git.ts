@@ -21,7 +21,7 @@ export async function lsRemote(repo: Repo): Promise<RefDic> {
     const data: RefDic = { heads: {}, tags: {}, pull: {} };
     out.split('\n').forEach((line) => {
         const [ref, tag] = line.trim().split('\t');
-        if (ref && tag && tag.startsWith('refs/')) {
+        if (ref && tag?.startsWith('refs/')) {
             const tagPath = tag.split('/').splice(1);
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let ldata = data as any; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
