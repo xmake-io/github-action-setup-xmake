@@ -75,6 +75,7 @@ pnpm install
 ```bash
 pnpm release
 git add .
+git commit -m "build: release"
 pnpm version [new-version]
 
 # for a minor version or patch of v1
