@@ -5,6 +5,10 @@ on:
 
 jobs:
   build:
+    concurrency:
+      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-${{ matrix.os }}-${{ matrix.version }}-test
+      cancel-in-progress: true
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macOS-latest]
@@ -14,9 +18,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - uses: xmake-io/github-action-setup-xmake@master
+      - uses: xmake-io/github-action-setup-xmake@test
         with:
           xmake-version: ${{ matrix.version }}
+          actions-cache-folder: '.xmake-cache'
+
       - name: Run tests
         run: |
           xmake --version
