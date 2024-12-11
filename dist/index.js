@@ -82835,11 +82835,14 @@ const path = __nccwpck_require__(1017);
 const semver = __nccwpck_require__(117);
 const git = __nccwpck_require__(3555);
 function getInstallerUrl(version, latest) {
-    const ver = version.version;
+    let ver = version.version;
     switch (version.type) {
         case 'heads': {
             const arch = os.arch() === 'x64' ? 'win64' : 'win32';
             const latestver = latest.version;
+            if (ver !== 'dev' && ver !== 'master') {
+                ver = latestver;
+            }
             return `https://github.com/xmake-io/xmake/releases/download/${latestver}/xmake-${ver}.${arch}.exe`;
         }
         case 'pull': {
