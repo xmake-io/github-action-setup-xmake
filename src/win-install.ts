@@ -11,11 +11,14 @@ import * as git from './git';
 import { Version, GitVersion } from './interfaces';
 
 function getInstallerUrl(version: GitVersion, latest: GitVersion): string {
-    const ver = version.version;
+    let ver = version.version;
     switch (version.type) {
         case 'heads': {
             const arch = os.arch() === 'x64' ? 'win64' : 'win32';
             const latestver = latest.version;
+            if (ver !== 'dev' && ver !== 'master') {
+                ver = latestver;
+            }
             return `https://github.com/xmake-io/xmake/releases/download/${latestver}/xmake-${ver}.${arch}.exe`;
         }
         case 'pull': {
