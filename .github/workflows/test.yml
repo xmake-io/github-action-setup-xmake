@@ -30,7 +30,8 @@ jobs:
           xmake --version
           xmake create test
           cd test
-          echo 'add_requires("libpng", {system = false})' >> xmake.lua
           echo 'add_packages("libpng")' >> xmake.lua
+          echo 'target_end()' >> xmake.lua
+          echo 'add_requires("libpng", {system = false})' >> xmake.lua
           xmake -vD -y
           xmake run
