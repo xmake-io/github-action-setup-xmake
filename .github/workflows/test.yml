@@ -22,10 +22,15 @@ jobs:
         with:
           xmake-version: ${{ matrix.version }}
           actions-cache-folder: '.xmake-cache'
+          build-cache-folder: '.xmake-build-cache'
+          package-cache-folder: '.xmake-package-cache'
 
       - name: Run tests
         run: |
           xmake --version
-          xmake create -P test
-          xmake build -P test
-          xmake run -P test
+          xmake create test
+          cd test
+          echo 'add_requires("libpng", {system = false})' >> xmake.lua
+          echo 'add_packages("libpng")' >> xmake.lua
+          xmake -v -y
+          xmake run

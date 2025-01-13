@@ -16,6 +16,19 @@ inputs:
   actions-cache-key:
     description: The actions cache key.
     default: ''
+  package-cache-folder:
+    description: 'Directory to cache package in. This folder will go under $GITHUB_HOME (I.e. build dir) and be cached using @actions/cache.'
+    default: ''
+  package-cache-key:
+    description: The packages cache key.
+    default: ''
+  build-cache-folder:
+    description: 'Directory to cache build artifacts in. This folder will go under $GITHUB_HOME (I.e. build dir) and be cached using @actions/cache.'
+    default: ''
+  build-cache-key:
+    description: The build cache key.
+    default: ''
+
 runs:
   using: 'node20'
   main: 'dist/index.js'

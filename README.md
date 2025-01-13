@@ -11,7 +11,7 @@ See [action.yml](./action.yml).
 
 ## Example
 
-Use latest version:
+### Use latest version
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
@@ -19,7 +19,7 @@ with:
   xmake-version: latest
 ```
 
-Use specified version:
+### Use specified version
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
@@ -27,7 +27,7 @@ with:
   xmake-version: '2.5.3'
 ```
 
-Use specified branch:
+### Use specified branch
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
@@ -35,7 +35,7 @@ with:
   xmake-version: branch@master
 ```
 
-Use semver:
+### Use semver
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
@@ -43,23 +43,43 @@ with:
   xmake-version: '>=2.2.6 <=2.5.3'
 ```
 
-Use action cache:
+### Cache xmake
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: '2.7.2'
+  xmake-version: '2.9.7'
   actions-cache-folder: '.xmake-cache'
 ```
 
-Use action cache with cachekey:
+### Cache xmake with cachekey
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: '2.7.2'
+  xmake-version: '2.9.7'
   actions-cache-folder: '.xmake-cache'
   actions-cache-key: 'archlinux-ci'
+```
+
+### Cache packages
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.9.7'
+  package-cache-folder: '.xmake-package-cache'
+  package-cache-key: 'archlinux-ci'
+```
+
+### Cache build
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.9.7'
+  build-cache-folder: '.xmake-build-cache'
+  build-cache-key: 'archlinux-ci'
 ```
 
 ## Contributing
