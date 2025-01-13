@@ -70,6 +70,16 @@ with:
   xmake-version: '2.9.7'
   package-cache-folder: '.xmake-package-cache'
   package-cache-key: 'archlinux-ci'
+  package-cache-status: 'load'
+
+- install packages
+...
+
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  package-cache-folder: '.xmake-package-cache'
+  package-cache-key: 'archlinux-ci'
+  package-cache-status: 'save'
 ```
 
 ### Cache build
@@ -80,6 +90,16 @@ with:
   xmake-version: '2.9.7'
   build-cache-folder: '.xmake-build-cache'
   build-cache-key: 'archlinux-ci'
+  build-cache-status: 'load'
+
+- build project
+...
+
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  build-cache-folder: '.xmake-build-cache'
+  build-cache-key: 'archlinux-ci'
+  build-cache-status: 'save'
 ```
 
 ## Contributing

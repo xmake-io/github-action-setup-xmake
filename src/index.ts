@@ -5,6 +5,12 @@ import { selectVersion } from './versions';
 import { winInstall } from './win-install';
 import { unixInstall } from './unix-install';
 
+async function cacheBuild(): Promise<void> {
+}
+
+async function cachePackages(): Promise<void> {
+}
+
 async function run(): Promise<void> {
     try {
         const version = await selectVersion();
