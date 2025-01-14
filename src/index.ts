@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { exec } from '@actions/exec';
 import * as os from 'os';
 import { selectVersion } from './versions';
+import * as stateHelper from './state-helper'
 import { winInstall } from './win-install';
 import { unixInstall } from './unix-install';
 
@@ -27,4 +28,19 @@ async function run(): Promise<void> {
     }
 }
 
-run().catch((e: Error) => core.error(e));
+
+async function cleanup(): Promise<void> {
+  try {
+    core.info(`cleanup`);
+  } catch (error) {
+    const ex = error as Error;
+    core.setFailed(ex.message);
+  }
+}
+
+if (!stateHelper.IsPost) {
+  run().catch((e: Error) => core.error(e));
+}
+else {
+  cleanup().catch((e: Error) => core.error(e));
+}

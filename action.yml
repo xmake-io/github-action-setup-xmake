@@ -22,17 +22,11 @@ inputs:
   package-cache-key:
     description: The packages cache key.
     default: ''
-  package-cache-status:
-    description: The packages cache status, e.g. load/save.
-    default: ''
   build-cache-folder:
     description: 'Directory to cache build artifacts in. This folder will go under $GITHUB_HOME (I.e. build dir) and be cached using @actions/cache.'
     default: ''
   build-cache-key:
     description: The build cache key.
-    default: ''
-  build-cache-status:
-    description: The build cache status, e.g. load/save.
     default: ''
 
 runs:
