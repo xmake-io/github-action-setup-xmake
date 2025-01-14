@@ -2,15 +2,13 @@ import * as core from '@actions/core';
 import { exec } from '@actions/exec';
 import * as os from 'os';
 import { selectVersion } from './versions';
-import * as stateHelper from './state-helper'
+import * as stateHelper from './state-helper';
 import { winInstall } from './win-install';
 import { unixInstall } from './unix-install';
 
-async function cacheBuild(): Promise<void> {
-}
+async function cacheBuild(): Promise<void> {}
 
-async function cachePackages(): Promise<void> {
-}
+async function cachePackages(): Promise<void> {}
 
 async function run(): Promise<void> {
     try {
@@ -28,19 +26,18 @@ async function run(): Promise<void> {
     }
 }
 
-
 async function cleanup(): Promise<void> {
-  try {
-    core.info(`cleanup`);
-  } catch (error) {
-    const ex = error as Error;
-    core.setFailed(ex.message);
-  }
+    try {
+        core.info(`cleanup`);
+        await cacheBuild();
+    } catch (error) {
+        const ex = error as Error;
+        core.setFailed(ex.message);
+    }
 }
 
 if (!stateHelper.IsPost) {
-  await run().catch((e: Error) => core.error(e));
-}
-else {
-  await cleanup().catch((e: Error) => core.error(e));
+    run().catch((e: Error) => core.error(e));
+} else {
+    cleanup().catch((e: Error) => core.error(e));
 }

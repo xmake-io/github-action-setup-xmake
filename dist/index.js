@@ -82545,6 +82545,43 @@ exports.Repo = Repo;
 
 /***/ }),
 
+/***/ 8387:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SshKnownHostsPath = exports.SshKeyPath = exports.PostSetSafeDirectory = exports.RepositoryPath = exports.IsPost = void 0;
+const core = __nccwpck_require__(9093);
+/**
+ * Indicates whether the POST action is running
+ */
+exports.IsPost = !!core.getState('isPost');
+/**
+ * The repository path for the POST action. The value is empty during the MAIN action.
+ */
+exports.RepositoryPath = core.getState('repositoryPath');
+/**
+ * The set-safe-directory for the POST action. The value is set if input: 'safe-directory' is set during the MAIN action.
+ */
+exports.PostSetSafeDirectory = core.getState('setSafeDirectory') === 'true';
+/**
+ * The SSH key path for the POST action. The value is empty during the MAIN action.
+ */
+exports.SshKeyPath = core.getState('sshKeyPath');
+/**
+ * The SSH known hosts path for the POST action. The value is empty during the MAIN action.
+ */
+exports.SshKnownHostsPath = core.getState('sshKnownHostsPath');
+// Publish a variable so that when the POST action runs, it can determine it should run the cleanup logic.
+// This is necessary since we don't have a separate entry point.
+if (!exports.IsPost) {
+    core.saveState('isPost', 'true');
+}
+
+
+/***/ }),
+
 /***/ 6689:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -87433,8 +87470,11 @@ const core = __nccwpck_require__(9093);
 const exec_1 = __nccwpck_require__(7775);
 const os = __nccwpck_require__(2037);
 const versions_1 = __nccwpck_require__(406);
+const stateHelper = __nccwpck_require__(8387);
 const win_install_1 = __nccwpck_require__(1612);
 const unix_install_1 = __nccwpck_require__(6689);
+async function cacheBuild() { }
+async function cachePackages() { }
 async function run() {
     try {
         const version = await (0, versions_1.selectVersion)();
@@ -87452,7 +87492,22 @@ async function run() {
         core.setFailed(ex.message);
     }
 }
-run().catch((e) => core.error(e));
+async function cleanup() {
+    try {
+        core.info(`cleanup`);
+        await cacheBuild();
+    }
+    catch (error) {
+        const ex = error;
+        core.setFailed(ex.message);
+    }
+}
+if (!stateHelper.IsPost) {
+    run().catch((e) => core.error(e));
+}
+else {
+    cleanup().catch((e) => core.error(e));
+}
 
 })();
 
