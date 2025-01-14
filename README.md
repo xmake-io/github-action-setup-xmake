@@ -68,7 +68,7 @@ with:
 uses: xmake-io/github-action-setup-xmake@v1
 with:
   xmake-version: '2.9.7'
-  package-cache-folder: '.xmake-package-cache'
+  package-cache: true
   package-cache-key: 'archlinux-ci'
 ```
 
@@ -78,8 +78,19 @@ with:
 uses: xmake-io/github-action-setup-xmake@v1
 with:
   xmake-version: '2.9.7'
-  build-cache-folder: '.xmake-build-cache'
+  build-cache: true
   build-cache-key: 'archlinux-ci'
+```
+
+Cache build with the specific build path.
+
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.9.7'
+  build-cache: true
+  build-cache-path: 'build/.build_cache'
 ```
 
 ## Contributing

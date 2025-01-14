@@ -16,14 +16,17 @@ inputs:
   actions-cache-key:
     description: The actions cache key.
     default: ''
-  package-cache-folder:
-    description: 'Directory to cache package in. This folder will go under $GITHUB_HOME (I.e. build dir) and be cached using @actions/cache.'
-    default: ''
+  package-cache:
+    description: Enable package cache.
+    default: false
   package-cache-key:
     description: The packages cache key.
     default: ''
-  build-cache-folder:
-    description: 'Directory to cache build artifacts in. This folder will go under $GITHUB_HOME (I.e. build dir) and be cached using @actions/cache.'
+  build-cache:
+    description: Enable build cache.
+    default: false
+  build-cache-path:
+    description: The build cache path.
     default: ''
   build-cache-key:
     description: The build cache key.

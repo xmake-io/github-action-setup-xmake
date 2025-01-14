@@ -1,6 +1,4 @@
 import * as core from '@actions/core';
-import { exec } from '@actions/exec';
-import * as os from 'os';
 import * as stateHelper from './state-helper';
 import { installXmake } from './install';
 import { loadBuildCache, saveBuildCache } from './build-cache';
