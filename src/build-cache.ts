@@ -7,8 +7,6 @@ import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
 
-export async function loadBuildCache(): Promise<void> {
-}
+export async function loadBuildCache(): Promise<void> {}
 
-export async function saveBuildCache(): Promise<void> {
-}
+export async function saveBuildCache(): Promise<void> {}

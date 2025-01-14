@@ -15,4 +15,3 @@ export async function installXmake(): Promise<void> {
     }
     await exec('xmake --root --version');
 }
-

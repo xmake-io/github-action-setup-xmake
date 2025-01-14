@@ -10,7 +10,7 @@ async function run(): Promise<void> {
     try {
         await installXmake();
         await loadBuildCache();
-        await loadPackagesCache();
+        await loadPackageCache();
     } catch (error) {
         const ex = error as Error;
         core.setFailed(ex.message);
@@ -20,7 +20,7 @@ async function run(): Promise<void> {
 async function saveCache(): Promise<void> {
     try {
         await saveBuildCache();
-        await savePackagesCache();
+        await savePackageCache();
     } catch (error) {
         const ex = error as Error;
         core.setFailed(ex.message);
