@@ -74,6 +74,14 @@ with:
 
 ### Cache build
 
+By default, xmake disables build cache when building on ci, so we need to enable it first.
+
+```bash
+$ xmake f --policies=build.ccache:y
+```
+
+And xmake v2.9.8 will enable it by default if action/build-cache is enabled.
+
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
@@ -83,7 +91,6 @@ with:
 ```
 
 Cache build with the specific build path.
-
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1

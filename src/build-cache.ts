@@ -1,19 +1,22 @@
 import * as core from '@actions/core';
 import { exec } from '@actions/exec';
 import * as io from '@actions/io';
-import * as toolCache from '@actions/tool-cache';
 import * as cache from '@actions/cache';
 import * as os from 'os';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as fsutils from './fsutils';
 
 export async function loadBuildCache(): Promise<void> {
-    let buildCache = core.getInput('build-cache');
+    const buildCache = core.getBooleanInput('build-cache');
     if (!buildCache) {
-        return ;
+        return;
     }
 
-    const buildCacheFolder = ".xmake-build-cache";
+    // export $XMAKE_ACTION_BUILD_CACHE, xmake will check it and enable build cache by default on ci.
+    core.exportVariable('XMAKE_ACTION_BUILD_CACHE', 'true');
+
+    const buildCacheFolder = '.xmake-build-cache';
 
     let buildCacheKey = core.getInput('build-cache-key');
     if (!buildCacheKey) {
@@ -25,25 +28,21 @@ export async function loadBuildCache(): Promise<void> {
 
     let buildCachePath = core.getInput('build-cache-path');
     if (!buildCachePath) {
-        buildCachePath = "build/.build_cache";
+        buildCachePath = 'build/.build_cache';
     }
 
     if (buildCacheFolder && process.env.GITHUB_WORKSPACE) {
         const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, buildCacheFolder);
-        try {
-            try {
-                fs.accessSync(path.join(fullCachePath, 'build_cache_saved.txt'), fs.constants.X_OK);
-            } catch {
-                await cache.restoreCache([buildCacheFolder], cacheKey);
-            }
-            fs.accessSync(path.join(fullCachePath, 'build_cache_saved.txt'), fs.constants.X_OK);
-            core.info(`restore build cache path: ${fullCachePath} to ${buildCachePath}, key: ${cacheKey}`);
-
-            // restore build cache
+        const filepath = path.join(fullCachePath, 'build_cache_saved.txt');
+        if (!fsutils.isFile(filepath)) {
+            core.info(`Restore build cache path: ${fullCachePath} to ${buildCachePath}, key: ${cacheKey}`);
+            await cache.restoreCache([buildCacheFolder], cacheKey);
+        }
+        if (fsutils.isFile(filepath)) {
             await io.cp(fullCachePath, buildCachePath, {
                 recursive: true,
             });
-        } catch {
+        } else {
             core.warning(`No cached files found at path "${fullCachePath}".`);
             await io.rmRF(fullCachePath);
         }
@@ -51,12 +50,12 @@ export async function loadBuildCache(): Promise<void> {
 }
 
 export async function saveBuildCache(): Promise<void> {
-    let buildCache = core.getInput('build-cache');
+    const buildCache = core.getBooleanInput('build-cache');
     if (!buildCache) {
-        return ;
+        return;
     }
 
-    const buildCacheFolder = ".xmake-build-cache";
+    const buildCacheFolder = '.xmake-build-cache';
 
     let buildCacheKey = core.getInput('build-cache-key');
     if (!buildCacheKey) {
@@ -68,16 +67,16 @@ export async function saveBuildCache(): Promise<void> {
 
     let buildCachePath = core.getInput('build-cache-path');
     if (!buildCachePath) {
-        buildCachePath = "build/.build_cache";
+        buildCachePath = 'build/.build_cache';
     }
 
-    if (buildCacheFolder && process.env.GITHUB_WORKSPACE) {
-        cacheDir = path.join(process.env.GITHUB_WORKSPACE, buildCacheFolder);
-        core.info(`save build cache path: ${buildCachePath} to ${cacheDir}, key: ${cacheKey}`);
-        await io.cp(buildCachePath, cacheDir, {
+    if (buildCacheFolder && process.env.GITHUB_WORKSPACE && fsutils.isDir(buildCachePath)) {
+        const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, buildCacheFolder);
+        core.info(`Save build cache path: ${buildCachePath} to ${fullCachePath}, key: ${cacheKey}`);
+        await io.cp(buildCachePath, fullCachePath, {
             recursive: true,
         });
-        await exec("xmake", ["l", "io.touch", path.join(cacheDir, "build_cache_saved.txt")]);
+        await exec('xmake', ['l', 'os.touch', path.join(fullCachePath, 'build_cache_saved.txt')]);
         await cache.saveCache([buildCacheFolder], cacheKey);
     }
 }
