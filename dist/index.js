@@ -87473,29 +87473,36 @@ const versions_1 = __nccwpck_require__(406);
 const stateHelper = __nccwpck_require__(8387);
 const win_install_1 = __nccwpck_require__(1612);
 const unix_install_1 = __nccwpck_require__(6689);
-async function cacheBuild() { }
-async function cachePackages() { }
+async function installXmake() {
+    const version = await (0, versions_1.selectVersion)();
+    if (os.platform() === 'win32' || os.platform() === 'cygwin') {
+        const latest = await (0, versions_1.selectVersion)('latest');
+        await (0, win_install_1.winInstall)(version, latest);
+    }
+    else {
+        await (0, unix_install_1.unixInstall)(version);
+    }
+    await (0, exec_1.exec)('xmake --root --version');
+}
+async function loadBuildCache() { }
+async function loadPackagesCache() { }
+async function saveBuildCache() { }
+async function savePackagesCache() { }
 async function run() {
     try {
-        const version = await (0, versions_1.selectVersion)();
-        if (os.platform() === 'win32' || os.platform() === 'cygwin') {
-            const latest = await (0, versions_1.selectVersion)('latest');
-            await (0, win_install_1.winInstall)(version, latest);
-        }
-        else {
-            await (0, unix_install_1.unixInstall)(version);
-        }
-        await (0, exec_1.exec)('xmake --root --version');
+        await installXmake();
+        await loadBuildCache();
+        await loadPackagesCache();
     }
     catch (error) {
         const ex = error;
         core.setFailed(ex.message);
     }
 }
-async function cleanup() {
+async function saveCache() {
     try {
-        core.info(`cleanup`);
-        await cacheBuild();
+        await saveBuildCache();
+        await savePackagesCache();
     }
     catch (error) {
         const ex = error;
@@ -87506,7 +87513,7 @@ if (!stateHelper.IsPost) {
     run().catch((e) => core.error(e));
 }
 else {
-    cleanup().catch((e) => core.error(e));
+    saveCache().catch((e) => core.error(e));
 }
 
 })();
