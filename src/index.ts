@@ -39,8 +39,8 @@ async function cleanup(): Promise<void> {
 }
 
 if (!stateHelper.IsPost) {
-  run().catch((e: Error) => core.error(e));
+  await run().catch((e: Error) => core.error(e));
 }
 else {
-  cleanup().catch((e: Error) => core.error(e));
+  await cleanup().catch((e: Error) => core.error(e));
 }
