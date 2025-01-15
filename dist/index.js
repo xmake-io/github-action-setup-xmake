@@ -82722,8 +82722,8 @@ async function getPackageCachePath() {
             packageCachePath += data.toString();
         },
     };
-    packageCachePath = packageCachePath.trim();
     await (0, exec_1.exec)('xmake', ['l', 'core.package.package.installdir'], options);
+    packageCachePath = packageCachePath.trim();
     core.info(`packageCachePath: ${packageCachePath}`);
     return packageCachePath;
 }

@@ -23,7 +23,7 @@ async function getPackageCachePath(): Promise<string> {
         },
     };
     await exec('xmake', ['l', 'core.package.package.installdir'], options);
-    packageCachePath = packageCachePath.trim().trim('"');
+    packageCachePath = packageCachePath.trim();
     core.info(`packageCachePath: ${packageCachePath}`);
     return packageCachePath;
 }
