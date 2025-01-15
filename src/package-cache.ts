@@ -3,7 +3,6 @@ import { exec, ExecOptions } from '@actions/exec';
 import * as io from '@actions/io';
 import * as cache from '@actions/cache';
 import * as os from 'os';
-import * as fs from 'fs';
 import * as path from 'path';
 import * as fsutils from './fsutils';
 
