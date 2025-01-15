@@ -82722,7 +82722,7 @@ async function getPackageCachePath() {
             packageCachePath += data.toString();
         },
     };
-    await (0, exec_1.exec)('xmake', ['l', 'core.package.package.installdir'], options);
+    await (0, exec_1.exec)('xmake', ['l', '-c', 'import("core.package.package"); print(package.installdir())'], options);
     packageCachePath = packageCachePath.trim();
     core.info(`packageCachePath: ${packageCachePath}`);
     return packageCachePath;
