@@ -17,9 +17,9 @@ function getPackageCacheKey(): string {
     }`;
 }
 
-function getPackageCachePath(): string {
+async function getPackageCachePath(): Promise<string> {
     let packageCachePath = "";
-    await exec('xmake', ['l', 'core.package.package.installdir'], (error: Error | null, stdout: string, stderr: string) => {
+    await exec('xmake l core.package.package.installdir', (error: Error | null, stdout: string, stderr: string) => {
         if (error) {
             core.info(`exec error: ${error}`);
             return;
@@ -42,7 +42,7 @@ export async function loadPackageCache(): Promise<void> {
 
     const packageCacheFolder = getPackageCacheFolder();
     const packageCacheKey    = getPackageCacheKey();
-    const packageCachePath   = getPackageCachePath();
+    const packageCachePath   = await getPackageCachePath();
     if (!packageCachePath || packageCachePath === '') {
         return;
     }
@@ -73,7 +73,7 @@ export async function savePackageCache(): Promise<void> {
 
     const packageCacheFolder = getPackageCacheFolder();
     const packageCacheKey    = getPackageCacheKey();
-    const packageCachePath   = getPackageCachePath();
+    const packageCachePath   = await getPackageCachePath();
     if (!packageCachePath || packageCachePath === '') {
         return;
     }
