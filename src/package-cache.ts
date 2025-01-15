@@ -1,5 +1,5 @@
 import * as core from '@actions/core';
-import { exec } from '@actions/exec';
+import { exec, ExecOptions } from '@actions/exec';
 import * as io from '@actions/io';
 import * as cache from '@actions/cache';
 import * as os from 'os';
@@ -12,20 +12,19 @@ function getPackageCacheKey(): string {
     if (!packageCacheKey) {
         packageCacheKey = '';
     }
-    return `xmake-package-cache-${packageCacheKey}-${os.arch()}-${os.platform()}-${
-        process.env.RUNNER_OS ?? 'unknown'
-    }`;
+    return `xmake-package-cache-${packageCacheKey}-${os.arch()}-${os.platform()}-${process.env.RUNNER_OS ?? 'unknown'}`;
 }
 
 async function getPackageCachePath(): Promise<string> {
-    let packageCachePath = "";
-    await exec('xmake l core.package.package.installdir', (error: Error | null, stdout: string, stderr: string) => {
-        if (error) {
-            core.info(`exec error: ${error}`);
-            return;
-        }
-        packageCachePath = stdout;
-    });
+    let packageCachePath = '';
+    const options: ExecOptions = {};
+    options.listeners = {
+        stdout: (data: Buffer) => {
+            packageCachePath += data.toString();
+        },
+        stderr: (data: Buffer) => {},
+    };
+    await exec('xmake', ['l', 'core.package.package.installdir'], options);
     core.info(`packageCachePath: ${packageCachePath}`);
     return packageCachePath;
 }
@@ -41,8 +40,8 @@ export async function loadPackageCache(): Promise<void> {
     }
 
     const packageCacheFolder = getPackageCacheFolder();
-    const packageCacheKey    = getPackageCacheKey();
-    const packageCachePath   = await getPackageCachePath();
+    const packageCacheKey = getPackageCacheKey();
+    const packageCachePath = await getPackageCachePath();
     if (!packageCachePath || packageCachePath === '') {
         return;
     }
@@ -72,8 +71,8 @@ export async function savePackageCache(): Promise<void> {
     }
 
     const packageCacheFolder = getPackageCacheFolder();
-    const packageCacheKey    = getPackageCacheKey();
-    const packageCachePath   = await getPackageCachePath();
+    const packageCacheKey = getPackageCacheKey();
+    const packageCachePath = await getPackageCachePath();
     if (!packageCachePath || packageCachePath === '') {
         return;
     }
@@ -88,4 +87,3 @@ export async function savePackageCache(): Promise<void> {
         await cache.saveCache([packageCacheFolder], packageCacheKey);
     }
 }
-
