@@ -82512,6 +82512,10 @@ async function getBuildCachePath() {
         const projectRootPath = getProjectRootPath();
         if (projectRootPath && projectRootPath !== '' && fsutils.isDir(projectRootPath)) {
             const options = {};
+            options.env = {
+                ...process.env,
+                XMAKE_ROOT: 'y',
+            };
             options.cwd = projectRootPath;
             options.listeners = {
                 stdout: (data) => {
@@ -82599,7 +82603,12 @@ async function saveBuildCache() {
         await io.cp(buildCachePath, fullCachePath, {
             recursive: true,
         });
-        await (0, exec_1.exec)('xmake', ['l', 'os.touch', path.join(fullCachePath, 'build_cache_saved.txt')]);
+        const options = {};
+        options.env = {
+            ...process.env,
+            XMAKE_ROOT: 'y',
+        };
+        await (0, exec_1.exec)('xmake', ['l', 'os.touch', path.join(fullCachePath, 'build_cache_saved.txt')], options);
         await cache.saveCache([buildCacheFolder], buildCacheKey);
     }
 }
@@ -82801,6 +82810,10 @@ async function getPackageCacheKey() {
     const projectRootPath = getProjectRootPath();
     if (projectRootPath && projectRootPath !== '' && fsutils.isDir(projectRootPath)) {
         const options = {};
+        options.env = {
+            ...process.env,
+            XMAKE_ROOT: 'y',
+        };
         options.cwd = projectRootPath;
         options.listeners = {
             stdout: (data) => {
@@ -82816,6 +82829,10 @@ async function getPackageCacheKey() {
 async function getPackageCachePath() {
     let packageCachePath = '';
     const options = {};
+    options.env = {
+        ...process.env,
+        XMAKE_ROOT: 'y',
+    };
     options.listeners = {
         stdout: (data) => {
             packageCachePath += data.toString();
@@ -82880,6 +82897,12 @@ async function savePackageCache() {
         await io.cp(packageCachePath, fullCachePath, {
             recursive: true,
         });
+        const options = {};
+        options.env = {
+            ...process.env,
+            XMAKE_ROOT: 'y',
+        };
+        await (0, exec_1.exec)('xmake', ['l', 'os.touch', path.join(fullCachePath, 'package_cache_saved.txt')], options);
         await cache.saveCache([packageCacheFolder], packageCacheKey);
     }
 }

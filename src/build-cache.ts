@@ -56,6 +56,10 @@ async function getBuildCachePath(): Promise<string> {
         const projectRootPath = getProjectRootPath();
         if (projectRootPath && projectRootPath !== '' && fsutils.isDir(projectRootPath)) {
             const options: ExecOptions = {};
+            options.env = {
+                ...process.env,
+                XMAKE_ROOT: 'y',
+            };
             options.cwd = projectRootPath;
             options.listeners = {
                 stdout: (data: Buffer) => {
@@ -153,7 +157,12 @@ export async function saveBuildCache(): Promise<void> {
         await io.cp(buildCachePath, fullCachePath, {
             recursive: true,
         });
-        await exec('xmake', ['l', 'os.touch', path.join(fullCachePath, 'build_cache_saved.txt')]);
+        const options: ExecOptions = {};
+        options.env = {
+            ...process.env,
+            XMAKE_ROOT: 'y',
+        };
+        await exec('xmake', ['l', 'os.touch', path.join(fullCachePath, 'build_cache_saved.txt')], options);
         await cache.saveCache([buildCacheFolder], buildCacheKey);
     }
 }

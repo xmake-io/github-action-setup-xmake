@@ -27,6 +27,10 @@ async function getPackageCacheKey(): Promise<string> {
     const projectRootPath = getProjectRootPath();
     if (projectRootPath && projectRootPath !== '' && fsutils.isDir(projectRootPath)) {
         const options: ExecOptions = {};
+        options.env = {
+            ...process.env,
+            XMAKE_ROOT: 'y',
+        };
         options.cwd = projectRootPath;
         options.listeners = {
             stdout: (data: Buffer) => {
@@ -43,6 +47,10 @@ async function getPackageCacheKey(): Promise<string> {
 async function getPackageCachePath(): Promise<string> {
     let packageCachePath = '';
     const options: ExecOptions = {};
+    options.env = {
+        ...process.env,
+        XMAKE_ROOT: 'y',
+    };
     options.listeners = {
         stdout: (data: Buffer) => {
             packageCachePath += data.toString();
@@ -112,6 +120,12 @@ export async function savePackageCache(): Promise<void> {
         await io.cp(packageCachePath, fullCachePath, {
             recursive: true,
         });
+        const options: ExecOptions = {};
+        options.env = {
+            ...process.env,
+            XMAKE_ROOT: 'y',
+        };
+        await exec('xmake', ['l', 'os.touch', path.join(fullCachePath, 'package_cache_saved.txt')], options);
         await cache.saveCache([packageCacheFolder], packageCacheKey);
     }
 }
