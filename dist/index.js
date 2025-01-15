@@ -82450,6 +82450,199 @@ try {
 
 /***/ }),
 
+/***/ 53:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.saveBuildCache = exports.loadBuildCache = void 0;
+const core = __nccwpck_require__(9093);
+const exec_1 = __nccwpck_require__(7775);
+const io = __nccwpck_require__(2826);
+const cache = __nccwpck_require__(6878);
+const os = __nccwpck_require__(2037);
+const path = __nccwpck_require__(1017);
+const fsutils = __nccwpck_require__(4295);
+function getBuildTime(hours) {
+    let key = 'BuildTime';
+    if (hours && hours !== '') {
+        key = key + hours;
+    }
+    let buildTime = core.getState(key);
+    if (!buildTime || buildTime === '') {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        if (!hours || hours === '') {
+            hours = String(now.getHours()).padStart(2, '0');
+        }
+        buildTime = `${year}${month}${day}_${hours}`;
+        core.saveState(key, buildTime);
+    }
+    return buildTime;
+}
+function getProjectRootPath() {
+    let projectRootPath = core.getInput('project-path');
+    if (!projectRootPath) {
+        projectRootPath = process.cwd();
+    }
+    projectRootPath = projectRootPath.trim();
+    if (projectRootPath && projectRootPath !== '' && !path.isAbsolute(projectRootPath)) {
+        projectRootPath = path.join(process.cwd(), projectRootPath);
+    }
+    return projectRootPath;
+}
+function getBuildCacheKey(buildCacheTime) {
+    var _a;
+    let buildCacheKey = core.getInput('build-cache-key');
+    if (!buildCacheKey) {
+        buildCacheKey = '';
+    }
+    if (!buildCacheTime || buildCacheTime === '') {
+        buildCacheTime = getBuildTime();
+    }
+    return `xmake-build-cache-${buildCacheKey}-${buildCacheTime}-${os.arch()}-${os.platform()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
+}
+async function getBuildCachePath() {
+    let buildCachePath = core.getInput('build-cache-path');
+    if (!buildCachePath) {
+        buildCachePath = '';
+        const projectRootPath = getProjectRootPath();
+        if (projectRootPath && projectRootPath !== '' && fsutils.isDir(projectRootPath)) {
+            const options = {};
+            options.cwd = projectRootPath;
+            options.listeners = {
+                stdout: (data) => {
+                    buildCachePath += data.toString();
+                },
+            };
+            await (0, exec_1.exec)('xmake', [
+                'l',
+                '-c',
+                'import("core.project.config"); import("private.cache.build_cache"); config.load(); print(build_cache.rootdir())',
+            ], options);
+            buildCachePath = buildCachePath.trim();
+            if (buildCachePath !== '' && !path.isAbsolute(buildCachePath)) {
+                buildCachePath = path.join(projectRootPath, buildCachePath);
+            }
+        }
+        else {
+            buildCachePath = 'build/.build_cache';
+        }
+    }
+    return buildCachePath;
+}
+function getBuildCacheFolder() {
+    return '.xmake-build-cache';
+}
+async function loadBuildCache() {
+    const buildCache = core.getBooleanInput('build-cache');
+    if (!buildCache) {
+        return;
+    }
+    // export $XMAKE_ACTION_BUILD_CACHE, xmake will check it and enable build cache by default on ci.
+    core.exportVariable('XMAKE_ACTION_BUILD_CACHE', 'true');
+    const buildCacheFolder = getBuildCacheFolder();
+    const buildCachePath = await getBuildCachePath();
+    if (buildCacheFolder && process.env.GITHUB_WORKSPACE) {
+        const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, buildCacheFolder);
+        const filepath = path.join(fullCachePath, 'build_cache_saved.txt');
+        // Since action/cache cannot overwrite updates, we try to restore the cache from the last 24 hours.
+        const now = new Date();
+        for (let i = 0; i < 24; i++) {
+            const hours = now.getHours() - i;
+            if (hours < 0) {
+                break;
+            }
+            const buildCacheKey = getBuildCacheKey(getBuildTime(String(hours).padStart(2, '0')));
+            if (!fsutils.isFile(filepath)) {
+                core.info(`Restore build cache path: ${fullCachePath} to ${buildCachePath}, key: ${buildCacheKey}`);
+                await cache.restoreCache([buildCacheFolder], buildCacheKey);
+            }
+            if (fsutils.isFile(filepath)) {
+                if (fsutils.isDir(buildCachePath)) {
+                    await io.rmRF(buildCachePath);
+                }
+                await io.cp(fullCachePath, buildCachePath, {
+                    recursive: true,
+                });
+                /* Even if the historical cache is hit, we need to update to the latest cache
+                 * Therefore, only when the latest cache is hit, it is a real hit, and we no longer need to update the cache.
+                 */
+                if (i === 0) {
+                    core.saveState('hitBuildCache', 'true');
+                }
+                break;
+            }
+        }
+        if (!fsutils.isFile(filepath)) {
+            core.warning(`No cached files found at path "${fullCachePath}".`);
+            await io.rmRF(fullCachePath);
+        }
+    }
+}
+exports.loadBuildCache = loadBuildCache;
+async function saveBuildCache() {
+    const buildCache = core.getBooleanInput('build-cache');
+    if (!buildCache) {
+        return;
+    }
+    const buildCacheFolder = getBuildCacheFolder();
+    const buildCacheKey = getBuildCacheKey();
+    const buildCachePath = await getBuildCachePath();
+    const hitBuildCache = !!core.getState('hitBuildCache');
+    if (!hitBuildCache && buildCacheFolder && process.env.GITHUB_WORKSPACE && fsutils.isDir(buildCachePath)) {
+        const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, buildCacheFolder);
+        core.info(`Save build cache path: ${buildCachePath} to ${fullCachePath}, key: ${buildCacheKey}`);
+        await io.cp(buildCachePath, fullCachePath, {
+            recursive: true,
+        });
+        await (0, exec_1.exec)('xmake', ['l', 'os.touch', path.join(fullCachePath, 'build_cache_saved.txt')]);
+        await cache.saveCache([buildCacheFolder], buildCacheKey);
+    }
+}
+exports.saveBuildCache = saveBuildCache;
+
+
+/***/ }),
+
+/***/ 4295:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.isDir = exports.isFile = void 0;
+const fs = __nccwpck_require__(7147);
+function isFile(filepath) {
+    try {
+        fs.accessSync(filepath, fs.constants.F_OK);
+        return true;
+    }
+    catch (_a) {
+        return false;
+    }
+}
+exports.isFile = isFile;
+function isDir(filepath) {
+    try {
+        const stats = fs.statSync(filepath);
+        if (stats.isDirectory()) {
+            return true;
+        }
+        return false;
+    }
+    catch (_a) {
+        return false;
+    }
+}
+exports.isDir = isDir;
+
+
+/***/ }),
+
 /***/ 3555:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -82520,6 +82713,34 @@ exports.cleanup = cleanup;
 
 /***/ }),
 
+/***/ 6633:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.installXmake = void 0;
+const exec_1 = __nccwpck_require__(7775);
+const os = __nccwpck_require__(2037);
+const versions_1 = __nccwpck_require__(406);
+const win_install_1 = __nccwpck_require__(1612);
+const unix_install_1 = __nccwpck_require__(6689);
+async function installXmake() {
+    const version = await (0, versions_1.selectVersion)();
+    if (os.platform() === 'win32' || os.platform() === 'cygwin') {
+        const latest = await (0, versions_1.selectVersion)('latest');
+        await (0, win_install_1.winInstall)(version, latest);
+    }
+    else {
+        await (0, unix_install_1.unixInstall)(version);
+    }
+    await (0, exec_1.exec)('xmake --root --version');
+}
+exports.installXmake = installXmake;
+
+
+/***/ }),
+
 /***/ 841:
 /***/ ((__unused_webpack_module, exports) => {
 
@@ -82541,6 +82762,149 @@ function Repo(repo) {
     return repo;
 }
 exports.Repo = Repo;
+
+
+/***/ }),
+
+/***/ 8884:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.savePackageCache = exports.loadPackageCache = void 0;
+const core = __nccwpck_require__(9093);
+const exec_1 = __nccwpck_require__(7775);
+const io = __nccwpck_require__(2826);
+const cache = __nccwpck_require__(6878);
+const os = __nccwpck_require__(2037);
+const path = __nccwpck_require__(1017);
+const fsutils = __nccwpck_require__(4295);
+function getProjectRootPath() {
+    let projectRootPath = core.getInput('project-path');
+    if (!projectRootPath) {
+        projectRootPath = process.cwd();
+    }
+    projectRootPath = projectRootPath.trim();
+    if (projectRootPath && projectRootPath !== '' && !path.isAbsolute(projectRootPath)) {
+        projectRootPath = path.join(process.cwd(), projectRootPath);
+    }
+    return projectRootPath;
+}
+async function getPackageCacheKey() {
+    var _a;
+    let packageCacheKey = core.getInput('package-cache-key');
+    if (!packageCacheKey) {
+        packageCacheKey = '';
+    }
+    let packageCacheHash = '';
+    const projectRootPath = getProjectRootPath();
+    if (projectRootPath && projectRootPath !== '' && fsutils.isDir(projectRootPath)) {
+        const options = {};
+        options.cwd = projectRootPath;
+        options.listeners = {
+            stdout: (data) => {
+                packageCacheHash += data.toString();
+            },
+        };
+        await (0, exec_1.exec)('xmake', ['repo', '--update']);
+        await (0, exec_1.exec)('xmake', ['l', 'utils.ci.packageskey'], options);
+        packageCacheHash = packageCacheHash.trim();
+    }
+    return `xmake-package-cache-${packageCacheKey}-${packageCacheHash}-${os.arch()}-${os.platform()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
+}
+async function getPackageCachePath() {
+    let packageCachePath = '';
+    const options = {};
+    options.listeners = {
+        stdout: (data) => {
+            packageCachePath += data.toString();
+        },
+    };
+    await (0, exec_1.exec)('xmake', ['l', '-c', 'import("core.package.package"); print(package.installdir())'], options);
+    packageCachePath = packageCachePath.trim();
+    return packageCachePath;
+}
+function getPackageCacheFolder() {
+    return '.xmake-package-cache';
+}
+async function loadPackageCache() {
+    const packageCache = core.getBooleanInput('package-cache');
+    if (!packageCache) {
+        return;
+    }
+    const packageCacheFolder = getPackageCacheFolder();
+    const packageCacheKey = await getPackageCacheKey();
+    const packageCachePath = await getPackageCachePath();
+    if (!packageCachePath || packageCachePath === '') {
+        return;
+    }
+    if (packageCacheFolder && process.env.GITHUB_WORKSPACE) {
+        const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, packageCacheFolder);
+        const filepath = path.join(fullCachePath, 'package_cache_saved.txt');
+        if (!fsutils.isFile(filepath)) {
+            core.info(`Restore package cache path: ${fullCachePath} to ${packageCachePath}, key: ${packageCacheKey}`);
+            await cache.restoreCache([packageCacheFolder], packageCacheKey);
+        }
+        if (fsutils.isFile(filepath)) {
+            if (fsutils.isDir(packageCachePath)) {
+                await io.rmRF(packageCachePath);
+            }
+            await io.cp(fullCachePath, packageCachePath, {
+                recursive: true,
+            });
+            core.saveState('hitPackageCache', 'true');
+        }
+        else {
+            core.warning(`No cached files found at path "${fullCachePath}".`);
+            await io.rmRF(fullCachePath);
+        }
+    }
+}
+exports.loadPackageCache = loadPackageCache;
+async function savePackageCache() {
+    const packageCache = core.getBooleanInput('package-cache');
+    if (!packageCache) {
+        return;
+    }
+    const packageCacheFolder = getPackageCacheFolder();
+    const packageCacheKey = await getPackageCacheKey();
+    const packageCachePath = await getPackageCachePath();
+    if (!packageCachePath || packageCachePath === '') {
+        return;
+    }
+    const hitPackageCache = !!core.getState('hitPackageCache');
+    if (!hitPackageCache && packageCacheFolder && process.env.GITHUB_WORKSPACE && fsutils.isDir(packageCachePath)) {
+        const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, packageCacheFolder);
+        core.info(`Save package cache path: ${packageCachePath} to ${fullCachePath}, key: ${packageCacheKey}`);
+        await io.cp(packageCachePath, fullCachePath, {
+            recursive: true,
+        });
+        await cache.saveCache([packageCacheFolder], packageCacheKey);
+    }
+}
+exports.savePackageCache = savePackageCache;
+
+
+/***/ }),
+
+/***/ 8387:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.IsPost = void 0;
+const core = __nccwpck_require__(9093);
+/**
+ * Indicates whether the POST action is running
+ */
+exports.IsPost = !!core.getState('isPost');
+// Publish a variable so that when the POST action runs, it can determine it should run the cleanup logic.
+// This is necessary since we don't have a separate entry point.
+if (!exports.IsPost) {
+    core.saveState('isPost', 'true');
+}
 
 
 /***/ }),
@@ -87430,29 +87794,37 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core = __nccwpck_require__(9093);
-const exec_1 = __nccwpck_require__(7775);
-const os = __nccwpck_require__(2037);
-const versions_1 = __nccwpck_require__(406);
-const win_install_1 = __nccwpck_require__(1612);
-const unix_install_1 = __nccwpck_require__(6689);
+const stateHelper = __nccwpck_require__(8387);
+const install_1 = __nccwpck_require__(6633);
+const build_cache_1 = __nccwpck_require__(53);
+const package_cache_1 = __nccwpck_require__(8884);
 async function run() {
     try {
-        const version = await (0, versions_1.selectVersion)();
-        if (os.platform() === 'win32' || os.platform() === 'cygwin') {
-            const latest = await (0, versions_1.selectVersion)('latest');
-            await (0, win_install_1.winInstall)(version, latest);
-        }
-        else {
-            await (0, unix_install_1.unixInstall)(version);
-        }
-        await (0, exec_1.exec)('xmake --root --version');
+        await (0, install_1.installXmake)();
+        await (0, build_cache_1.loadBuildCache)();
+        await (0, package_cache_1.loadPackageCache)();
     }
     catch (error) {
         const ex = error;
         core.setFailed(ex.message);
     }
 }
-run().catch((e) => core.error(e));
+async function saveCache() {
+    try {
+        await (0, build_cache_1.saveBuildCache)();
+        await (0, package_cache_1.savePackageCache)();
+    }
+    catch (error) {
+        const ex = error;
+        core.setFailed(ex.message);
+    }
+}
+if (!stateHelper.IsPost) {
+    run().catch((e) => core.error(e));
+}
+else {
+    saveCache().catch((e) => core.error(e));
+}
 
 })();
 

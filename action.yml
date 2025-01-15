@@ -16,6 +16,26 @@ inputs:
   actions-cache-key:
     description: The actions cache key.
     default: ''
+  package-cache:
+    description: Enable package cache.
+    default: false
+  package-cache-key:
+    description: The packages cache key.
+    default: ''
+  project-path:
+    description: The project root path.
+    default: ''
+  build-cache:
+    description: Enable build cache.
+    default: false
+  build-cache-path:
+    description: The build cache path.
+    default: ''
+  build-cache-key:
+    description: The build cache key.
+    default: ''
+
 runs:
   using: 'node20'
   main: 'dist/index.js'
+  post: 'dist/index.js'

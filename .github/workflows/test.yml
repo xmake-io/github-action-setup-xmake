@@ -18,14 +18,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - uses: xmake-io/github-action-setup-xmake@test
+      - uses: xmake-io/github-action-setup-xmake@cache
         with:
           xmake-version: ${{ matrix.version }}
           actions-cache-folder: '.xmake-cache'
+          actions-cache-key: ${{ matrix.version }}
+          build-cache: true
+          build-cache-key: ${{ matrix.version }}
+          package-cache: true
+          package-cache-key: ${{ matrix.version }}
+          project-path: 'tests/sample'
 
       - name: Run tests
         run: |
           xmake --version
-          xmake create -P test
-          xmake build -P test
-          xmake run -P test
+          cd tests/sample
+          xmake -y -vD
+          xmake run

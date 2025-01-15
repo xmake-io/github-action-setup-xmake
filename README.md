@@ -11,7 +11,7 @@ See [action.yml](./action.yml).
 
 ## Example
 
-Use latest version:
+### Use latest version
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
@@ -19,7 +19,7 @@ with:
   xmake-version: latest
 ```
 
-Use specified version:
+### Use specified version
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
@@ -27,7 +27,7 @@ with:
   xmake-version: '2.5.3'
 ```
 
-Use specified branch:
+### Use specified branch
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
@@ -35,7 +35,7 @@ with:
   xmake-version: branch@master
 ```
 
-Use semver:
+### Use semver
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
@@ -43,23 +43,72 @@ with:
   xmake-version: '>=2.2.6 <=2.5.3'
 ```
 
-Use action cache:
+### Cache xmake
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: '2.7.2'
+  xmake-version: '2.9.7'
   actions-cache-folder: '.xmake-cache'
 ```
 
-Use action cache with cachekey:
+### Cache xmake with cachekey
 
 ```yml
 uses: xmake-io/github-action-setup-xmake@v1
 with:
-  xmake-version: '2.7.2'
+  xmake-version: '2.9.7'
   actions-cache-folder: '.xmake-cache'
   actions-cache-key: 'archlinux-ci'
+```
+
+### Cache packages
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.9.7'
+  package-cache: true
+  package-cache-key: 'archlinux-ci'
+  project-path: 'myproject' # we need to compute packages hashkey for project
+```
+
+### Cache build
+
+By default, xmake disables build cache when building on ci, so we need to enable it first.
+
+```bash
+$ xmake f --policies=build.ccache:y
+```
+
+And xmake v2.9.8 will enable it by default if action/build-cache is enabled.
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.9.7'
+  build-cache: true
+  build-cache-key: 'archlinux-ci'
+```
+
+Cache build with the specific project path.
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.9.7'
+  build-cache: true
+  project-path: 'myproject' # we can get the build cache path from project.
+```
+
+Cache build with the specific build path.
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.9.7'
+  build-cache: true
+  build-cache-path: 'build/.build_cache'
 ```
 
 ## Contributing
