@@ -21,8 +21,8 @@ async function getPackageCachePath(): Promise<string> {
         stdout: (data: Buffer) => {
             packageCachePath += data.toString();
         },
-        stderr: (data: Buffer) => {},
     };
+    packageCachePath = packageCachePath.trim();
     await exec('xmake', ['l', 'core.package.package.installdir'], options);
     core.info(`packageCachePath: ${packageCachePath}`);
     return packageCachePath;
