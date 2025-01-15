@@ -22,6 +22,9 @@ inputs:
   package-cache-key:
     description: The packages cache key.
     default: ''
+  project-path:
+    description: The project root path.
+    default: ''
   build-cache:
     description: Enable build cache.
     default: false

@@ -70,6 +70,7 @@ with:
   xmake-version: '2.9.7'
   package-cache: true
   package-cache-key: 'archlinux-ci'
+  project-path: 'myproject' # we need to compute packages hashkey for project
 ```
 
 ### Cache build
@@ -88,6 +89,16 @@ with:
   xmake-version: '2.9.7'
   build-cache: true
   build-cache-key: 'archlinux-ci'
+```
+
+Cache build with the specific project path.
+
+```yml
+uses: xmake-io/github-action-setup-xmake@v1
+with:
+  xmake-version: '2.9.7'
+  build-cache: true
+  project-path: 'myproject' # we can get the build cache path from project.
 ```
 
 Cache build with the specific build path.

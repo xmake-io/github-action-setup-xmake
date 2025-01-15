@@ -22,9 +22,12 @@ jobs:
         with:
           xmake-version: ${{ matrix.version }}
           actions-cache-folder: '.xmake-cache'
+          actions-cache-key: ${{ matrix.version }}
           build-cache: true
-          build-cache-path: 'tests/sample/build/.build_cache'
+          build-cache-key: ${{ matrix.version }}
           package-cache: true
+          package-cache-key: ${{ matrix.version }}
+          project-path: 'tests/sample'
 
       - name: Run tests
         run: |
