@@ -83225,7 +83225,7 @@ function getInstallerUrl(version, latest) {
     let ver = version.version;
     switch (version.type) {
         case 'heads': {
-            const arch = os.arch() === 'x64' ? 'win64' : 'win32';
+            const arch = os.arch() === 'arm64' ? 'arm64' : os.arch() === 'x64' ? 'win64' : 'win32';
             const latestver = latest.version;
             if (ver !== 'dev' && ver !== 'master') {
                 ver = latestver;
@@ -83239,7 +83239,7 @@ function getInstallerUrl(version, latest) {
             throw new Error('Sha builds for windows is not supported');
         }
         case 'tags': {
-            const arch = os.arch() === 'x64' ? 'win64' : 'win32';
+            const arch = os.arch() === 'arm64' ? 'arm64' : os.arch() === 'x64' ? 'win64' : 'win32';
             return semver.gt(ver, '2.2.6')
                 ? `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.${arch}.exe`
                 : `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.exe`;
