@@ -11,8 +11,8 @@ importers:
         specifier: ^4.0.3
         version: 4.0.3
       '@actions/core':
-        specifier: ^1.10.1
-        version: 1.10.1
+        specifier: ^1.11.1
+        version: 1.11.1
       '@actions/exec':
         specifier: ^1.1.1
         version: 1.1.1
@@ -20,11 +20,11 @@ importers:
         specifier: ^1.1.3
         version: 1.1.3
       '@actions/tool-cache':
-        specifier: ^2.0.1
-        version: 2.0.1
+        specifier: ^2.0.2
+        version: 2.0.2
       semver:
-        specifier: ^7.6.0
-        version: 7.6.0
+        specifier: ^7.7.2
+        version: 7.7.2
     devDependencies:
       '@types/jest':
         specifier: ^29.5.12
@@ -82,10 +82,6 @@ packages:
     resolution:
       { integrity: sha512-SvrqFtYJ7I48A/uXNkoJrnukx5weQv1fGquhs3+4nkByZThBH109KTIqj5x/cGV7JGNvb8dLPVywUOqX1fjiXg== }
 
-  '@actions/core@1.10.1':
-    resolution:
-      { integrity: sha512-3lBR9EDAY+iYIpTnTIXmWcNbX3T2kCkAEQGIQx4NVQ0575nk2k3GRZDTPQG+vVtS2izSLmINlxXf0uLtnrTP+g== }
-
   '@actions/core@1.11.1':
     resolution:
       { integrity: sha512-hXJCSrkwfA46Vd9Z3q4cpEpHB1rL5NG04+/rbqW9d3+CSvtB1tYe8UTpAlixa1vj0m/ULglfEK2UKxMGxCxv5A== }
@@ -106,9 +102,9 @@ packages:
     resolution:
       { integrity: sha512-wi9JjgKLYS7U/z8PPbco+PvTb/nRWjeoFlJ1Qer83k/3C5PHQi28hiVdeE2kHXmIL99mQFawx8qt/JPjZilJ8Q== }
 
-  '@actions/tool-cache@2.0.1':
+  '@actions/tool-cache@2.0.2':
     resolution:
-      { integrity: sha512-iPU+mNwrbA8jodY8eyo/0S/QqCKDajiR8OxWTnSk/SnYg0sj8Hp4QcUEVC1YFpHWXtrfbQrE13Jz4k4HXJQKcA== }
+      { integrity: sha512-fBhNNOWxuoLxztQebpOaWu6WeVmuwa77Z+DxIZ1B+OYvGkGQon6kTVg6Z32Cb13WCuw0szqonK+hh03mJV7Z6w== }
 
   '@ampproject/remapping@2.3.0':
     resolution:
@@ -1706,11 +1702,6 @@ packages:
     resolution:
       { integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w== }
 
-  lru-cache@6.0.0:
-    resolution:
-      { integrity: sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA== }
-    engines: { node: '>=10' }
-
   make-dir@4.0.0:
     resolution:
       { integrity: sha512-hXdUTZYIVOt1Ex//jAQi+wTZZpUpwBj/0QsOzqegb3rGMMeJiSEu5xLHnYfBrRV4RH2+OCSOO95Is/7x1WJ4bw== }
@@ -2012,9 +2003,9 @@ packages:
       { integrity: sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA== }
     hasBin: true
 
-  semver@7.6.0:
+  semver@7.7.2:
     resolution:
-      { integrity: sha512-EnwXhrlwXMk9gKu5/flx5sv/an57AkRplG3hTK68W7FRDN+k+OWBj65M7719OkA82XLBxrcX0KSHj+X5COhOVg== }
+      { integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA== }
     engines: { node: '>=10' }
     hasBin: true
 
@@ -2255,12 +2246,6 @@ packages:
     resolution:
       { integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg== }
 
-  uuid@3.4.0:
-    resolution:
-      { integrity: sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A== }
-    deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
-    hasBin: true
-
   uuid@8.3.2:
     resolution:
       { integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg== }
@@ -2327,10 +2312,6 @@ packages:
     resolution:
       { integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g== }
 
-  yallist@4.0.0:
-    resolution:
-      { integrity: sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A== }
-
   yargs-parser@21.1.1:
     resolution:
       { integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw== }
@@ -2364,11 +2345,6 @@ snapshots:
     transitivePeerDependencies:
       - encoding
 
-  '@actions/core@1.10.1':
-    dependencies:
-      '@actions/http-client': 2.2.1
-      uuid: 8.3.2
-
   '@actions/core@1.11.1':
     dependencies:
       '@actions/exec': 1.1.1
@@ -2390,14 +2366,13 @@ snapshots:
 
   '@actions/io@1.1.3': {}
 
-  '@actions/tool-cache@2.0.1':
+  '@actions/tool-cache@2.0.2':
     dependencies:
-      '@actions/core': 1.10.1
+      '@actions/core': 1.11.1
       '@actions/exec': 1.1.1
       '@actions/http-client': 2.2.1
       '@actions/io': 1.1.3
       semver: 6.3.1
-      uuid: 3.4.0
 
   '@ampproject/remapping@2.3.0':
     dependencies:
@@ -3051,7 +3026,7 @@ snapshots:
       graphemer: 1.4.0
       ignore: 5.3.1
       natural-compare: 1.4.0
-      semver: 7.6.0
+      semver: 7.7.2
       ts-api-utils: 1.3.0(typescript@5.4.4)
     optionalDependencies:
       typescript: 5.4.4
@@ -3098,7 +3073,7 @@ snapshots:
       globby: 11.1.0
       is-glob: 4.0.3
       minimatch: 9.0.3
-      semver: 7.6.0
+      semver: 7.7.2
       ts-api-utils: 1.3.0(typescript@5.4.4)
     optionalDependencies:
       typescript: 5.4.4
@@ -3114,7 +3089,7 @@ snapshots:
       '@typescript-eslint/types': 7.5.0
       '@typescript-eslint/typescript-estree': 7.5.0(typescript@5.4.4)
       eslint: 8.57.0
-      semver: 7.6.0
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
       - typescript
@@ -3696,7 +3671,7 @@ snapshots:
       '@babel/parser': 7.24.4
       '@istanbuljs/schema': 0.1.3
       istanbul-lib-coverage: 3.2.2
-      semver: 7.6.0
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -3981,7 +3956,7 @@ snapshots:
       jest-util: 29.7.0
       natural-compare: 1.4.0
       pretty-format: 29.7.0
-      semver: 7.6.0
+      semver: 7.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -4089,13 +4064,9 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  lru-cache@6.0.0:
-    dependencies:
-      yallist: 4.0.0
-
   make-dir@4.0.0:
     dependencies:
-      semver: 7.6.0
+      semver: 7.7.2
 
   make-error@1.3.6: {}
 
@@ -4288,9 +4259,7 @@ snapshots:
 
   semver@6.3.1: {}
 
-  semver@7.6.0:
-    dependencies:
-      lru-cache: 6.0.0
+  semver@7.7.2: {}
 
   shebang-command@2.0.0:
     dependencies:
@@ -4400,7 +4369,7 @@ snapshots:
       json5: 2.2.3
       lodash.memoize: 4.1.2
       make-error: 1.3.6
-      semver: 7.6.0
+      semver: 7.7.2
       typescript: 5.4.4
       yargs-parser: 21.1.1
     optionalDependencies:
@@ -4445,8 +4414,6 @@ snapshots:
   uri-js@4.4.1:
     dependencies:
       punycode: 2.3.1
-
-  uuid@3.4.0: {}
 
   uuid@8.3.2: {}
 
@@ -4500,8 +4467,6 @@ snapshots:
   y18n@5.0.8: {}
 
   yallist@3.1.1: {}
-
-  yallist@4.0.0: {}
 
   yargs-parser@21.1.1: {}
 
