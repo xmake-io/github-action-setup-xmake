@@ -70996,7 +70996,7 @@ const git = __nccwpck_require__(1243);
 async function install(sourceDir, binDir) {
     if (fs.existsSync(path.join(sourceDir, 'configure'))) {
         await (0, exec_1.exec)('sh', ['./configure'], { cwd: sourceDir });
-        await (0, exec_1.exec)('make', ['-j6'], { cwd: sourceDir });
+        await (0, exec_1.exec)('make', ['-j6', 'VERBOSE=1'], { cwd: sourceDir });
         await (0, exec_1.exec)('make', ['install', `PREFIX=${binDir}`], { cwd: sourceDir });
     }
     else {
