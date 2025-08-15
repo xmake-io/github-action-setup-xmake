@@ -11,14 +11,14 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, windows-11-arm, macOS-latest]
+        os: [ubuntu-latest, windows-latest, windows-11-arm, macOS-latest, macos-14]
         version: [latest, branch@master, branch@dev]
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v1
-      - uses: xmake-io/github-action-setup-xmake@master
+      - uses: xmake-io/github-action-setup-xmake@test
         with:
           xmake-version: ${{ matrix.version }}
           actions-cache-folder: '.xmake-cache'
