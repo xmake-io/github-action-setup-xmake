@@ -21,8 +21,6 @@ jobs:
       - uses: xmake-io/github-action-setup-xmake@test
         with:
           xmake-version: ${{ matrix.version }}
-          actions-cache-folder: '.xmake-cache'
-          actions-cache-key: ${{ matrix.version }}
           build-cache: true
           build-cache-key: ${{ matrix.version }}
           package-cache: true
