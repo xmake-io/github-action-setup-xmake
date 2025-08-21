@@ -94,5 +94,5 @@ export async function unixInstall(version: Version): Promise<void> {
     }
 
     // xmake l utils.binary.deplibs /Users/ruki/.local/bin/xmake
-    await exec(`xmake --root l utils.binary.deplibs ${path.join(toolDir, 'bin', 'xmake')}`);
+    await exec(`xmake l --root utils.binary.deplibs ${path.join(toolDir, 'bin', 'xmake')}`);
 }
