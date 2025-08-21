@@ -71028,8 +71028,6 @@ async function unixInstall(version) {
                 fs.accessSync(path.join(fullCachePath, 'bin', 'xmake'), fs.constants.X_OK);
                 toolDir = fullCachePath;
                 core.info(`cache path: ${toolDir}, key: ${cacheKey}`);
-                // xmake l utils.binary.deplibs /Users/ruki/.local/bin/xmake
-                await (0, exec_1.exec)(`xmake --root l utils.binary.deplibs ${path.join(fullCachePath, 'bin', 'xmake')}`);
             }
             catch (_c) {
                 core.warning(`No cached files found at path "${fullCachePath}".`);
@@ -71076,6 +71074,8 @@ async function unixInstall(version) {
     else {
         core.addPath(path.join(toolDir, 'share', 'xmake')); // only for <= 2.3.1
     }
+    // xmake l utils.binary.deplibs /Users/ruki/.local/bin/xmake
+    await (0, exec_1.exec)(`xmake --root l utils.binary.deplibs ${path.join(toolDir, 'bin', 'xmake')}`);
 }
 
 
