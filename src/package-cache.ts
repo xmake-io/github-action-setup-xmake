@@ -2,9 +2,9 @@ import * as core from '@actions/core';
 import { exec, ExecOptions } from '@actions/exec';
 import * as io from '@actions/io';
 import * as cache from '@actions/cache';
-import * as os from 'os';
 import * as path from 'path';
 import * as fsutils from './fsutils';
+import { getPlatformIdentifier } from './system';
 
 function getProjectRootPath(): string {
     let projectRootPath = core.getInput('project-path');
@@ -41,7 +41,8 @@ async function getPackageCacheKey(): Promise<string> {
         await exec('xmake', ['l', 'utils.ci.packageskey'], options);
         packageCacheHash = packageCacheHash.trim();
     }
-    return `xmake-package-cache-${packageCacheKey}-${packageCacheHash}-${os.arch()}-${os.platform()}-${process.env.RUNNER_OS ?? 'unknown'}`;
+    const platformIdentifier = await getPlatformIdentifier();
+    return `xmake-package-cache-${packageCacheKey}-${packageCacheHash}-${platformIdentifier}`;
 }
 
 async function getPackageCachePath(): Promise<string> {

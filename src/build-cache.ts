@@ -2,9 +2,9 @@ import * as core from '@actions/core';
 import { exec, ExecOptions } from '@actions/exec';
 import * as io from '@actions/io';
 import * as cache from '@actions/cache';
-import * as os from 'os';
 import * as path from 'path';
 import * as fsutils from './fsutils';
+import { getPlatformIdentifier } from './system';
 
 function getBuildTime(hours?: string): string {
     let key = 'BuildTime';
@@ -38,7 +38,7 @@ function getProjectRootPath(): string {
     return projectRootPath;
 }
 
-function getBuildCacheKey(buildCacheTime?: string): string {
+async function getBuildCacheKey(buildCacheTime?: string): Promise<string> {
     let buildCacheKey = core.getInput('build-cache-key');
     if (!buildCacheKey) {
         buildCacheKey = '';
@@ -46,7 +46,8 @@ function getBuildCacheKey(buildCacheTime?: string): string {
     if (!buildCacheTime || buildCacheTime === '') {
         buildCacheTime = getBuildTime();
     }
-    return `xmake-build-cache-${buildCacheKey}-${buildCacheTime}-${os.arch()}-${os.platform()}-${process.env.RUNNER_OS ?? 'unknown'}`;
+    const platformIdentifier = await getPlatformIdentifier();
+    return `xmake-build-cache-${buildCacheKey}-${buildCacheTime}-${platformIdentifier}`;
 }
 
 async function getBuildCachePath(): Promise<string> {
@@ -112,7 +113,7 @@ export async function loadBuildCache(): Promise<void> {
             if (hours < 0) {
                 break;
             }
-            const buildCacheKey = getBuildCacheKey(getBuildTime(String(hours).padStart(2, '0')));
+            const buildCacheKey = await getBuildCacheKey(getBuildTime(String(hours).padStart(2, '0')));
             if (!fsutils.isFile(filepath)) {
                 core.info(`Restore build cache path: ${fullCachePath} to ${buildCachePath}, key: ${buildCacheKey}`);
                 await cache.restoreCache([buildCacheFolder], buildCacheKey);
@@ -147,7 +148,7 @@ export async function saveBuildCache(): Promise<void> {
     }
 
     const buildCacheFolder = getBuildCacheFolder();
-    const buildCacheKey = getBuildCacheKey();
+    const buildCacheKey = await getBuildCacheKey();
     const buildCachePath = await getBuildCachePath();
 
     const hitBuildCache = !!core.getState('hitBuildCache');

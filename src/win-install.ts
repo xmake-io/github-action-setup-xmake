@@ -9,6 +9,7 @@ import * as path from 'path';
 import * as semver from 'semver';
 import * as git from './git';
 import { Version, GitVersion } from './interfaces';
+import { getPlatformIdentifier } from './system';
 
 function getInstallerUrl(version: GitVersion, latest: GitVersion): string {
     let ver = version.version;
@@ -59,9 +60,8 @@ export async function winInstall(version: Version, latest: Version): Promise<voi
 
     const ver = version.version;
     const sha = version.sha;
-    const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${os.arch()}-${os.platform()}-${
-        process.env.RUNNER_OS ?? 'unknown'
-    }`;
+    const platformIdentifier = await getPlatformIdentifier();
+    const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${platformIdentifier}`;
 
     let toolDir = '';
     if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {

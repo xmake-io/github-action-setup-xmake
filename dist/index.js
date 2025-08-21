@@ -70512,9 +70512,9 @@ const core = __nccwpck_require__(7484);
 const exec_1 = __nccwpck_require__(5236);
 const io = __nccwpck_require__(4994);
 const cache = __nccwpck_require__(5116);
-const os = __nccwpck_require__(857);
 const path = __nccwpck_require__(6928);
 const fsutils = __nccwpck_require__(7999);
+const system_1 = __nccwpck_require__(7666);
 function getBuildTime(hours) {
     let key = 'BuildTime';
     if (hours && hours !== '') {
@@ -70545,8 +70545,7 @@ function getProjectRootPath() {
     }
     return projectRootPath;
 }
-function getBuildCacheKey(buildCacheTime) {
-    var _a;
+async function getBuildCacheKey(buildCacheTime) {
     let buildCacheKey = core.getInput('build-cache-key');
     if (!buildCacheKey) {
         buildCacheKey = '';
@@ -70554,7 +70553,8 @@ function getBuildCacheKey(buildCacheTime) {
     if (!buildCacheTime || buildCacheTime === '') {
         buildCacheTime = getBuildTime();
     }
-    return `xmake-build-cache-${buildCacheKey}-${buildCacheTime}-${os.arch()}-${os.platform()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
+    const platformIdentifier = await (0, system_1.getPlatformIdentifier)();
+    return `xmake-build-cache-${buildCacheKey}-${buildCacheTime}-${platformIdentifier}`;
 }
 async function getBuildCachePath() {
     let buildCachePath = core.getInput('build-cache-path');
@@ -70611,7 +70611,7 @@ async function loadBuildCache() {
             if (hours < 0) {
                 break;
             }
-            const buildCacheKey = getBuildCacheKey(getBuildTime(String(hours).padStart(2, '0')));
+            const buildCacheKey = await getBuildCacheKey(getBuildTime(String(hours).padStart(2, '0')));
             if (!fsutils.isFile(filepath)) {
                 core.info(`Restore build cache path: ${fullCachePath} to ${buildCachePath}, key: ${buildCacheKey}`);
                 await cache.restoreCache([buildCacheFolder], buildCacheKey);
@@ -70644,7 +70644,7 @@ async function saveBuildCache() {
         return;
     }
     const buildCacheFolder = getBuildCacheFolder();
-    const buildCacheKey = getBuildCacheKey();
+    const buildCacheKey = await getBuildCacheKey();
     const buildCachePath = await getBuildCachePath();
     const hitBuildCache = !!core.getState('hitBuildCache');
     if (!hitBuildCache && buildCacheFolder && process.env.GITHUB_WORKSPACE && fsutils.isDir(buildCachePath)) {
@@ -70832,9 +70832,9 @@ const core = __nccwpck_require__(7484);
 const exec_1 = __nccwpck_require__(5236);
 const io = __nccwpck_require__(4994);
 const cache = __nccwpck_require__(5116);
-const os = __nccwpck_require__(857);
 const path = __nccwpck_require__(6928);
 const fsutils = __nccwpck_require__(7999);
+const system_1 = __nccwpck_require__(7666);
 function getProjectRootPath() {
     let projectRootPath = core.getInput('project-path');
     if (!projectRootPath) {
@@ -70847,7 +70847,6 @@ function getProjectRootPath() {
     return projectRootPath;
 }
 async function getPackageCacheKey() {
-    var _a;
     let packageCacheKey = core.getInput('package-cache-key');
     if (!packageCacheKey) {
         packageCacheKey = '';
@@ -70870,7 +70869,8 @@ async function getPackageCacheKey() {
         await (0, exec_1.exec)('xmake', ['l', 'utils.ci.packageskey'], options);
         packageCacheHash = packageCacheHash.trim();
     }
-    return `xmake-package-cache-${packageCacheKey}-${packageCacheHash}-${os.arch()}-${os.platform()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
+    const platformIdentifier = await (0, system_1.getPlatformIdentifier)();
+    return `xmake-package-cache-${packageCacheKey}-${packageCacheHash}-${platformIdentifier}`;
 }
 async function getPackageCachePath() {
     let packageCachePath = '';
@@ -70976,23 +70976,16 @@ if (!exports.IsPost) {
 
 /***/ }),
 
-/***/ 9095:
+/***/ 7666:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.unixInstall = unixInstall;
+exports.getPlatformIdentifier = getPlatformIdentifier;
 const core = __nccwpck_require__(7484);
 const exec_1 = __nccwpck_require__(5236);
-const io = __nccwpck_require__(4994);
-const toolCache = __nccwpck_require__(3472);
-const cache = __nccwpck_require__(5116);
 const os = __nccwpck_require__(857);
-const fs = __nccwpck_require__(9896);
-const path = __nccwpck_require__(6928);
-const semver = __nccwpck_require__(2088);
-const git = __nccwpck_require__(1243);
 async function getPlatformIdentifier() {
     var _a;
     let identifier = `${os.platform()}-${os.arch()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
@@ -71017,6 +71010,28 @@ async function getPlatformIdentifier() {
     }
     return identifier;
 }
+
+
+/***/ }),
+
+/***/ 9095:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.unixInstall = unixInstall;
+const core = __nccwpck_require__(7484);
+const exec_1 = __nccwpck_require__(5236);
+const io = __nccwpck_require__(4994);
+const toolCache = __nccwpck_require__(3472);
+const cache = __nccwpck_require__(5116);
+const os = __nccwpck_require__(857);
+const fs = __nccwpck_require__(9896);
+const path = __nccwpck_require__(6928);
+const semver = __nccwpck_require__(2088);
+const git = __nccwpck_require__(1243);
+const system_1 = __nccwpck_require__(7666);
 async function install(sourceDir, binDir) {
     if (fs.existsSync(path.join(sourceDir, 'configure'))) {
         await (0, exec_1.exec)('sh', ['./configure'], { cwd: sourceDir });
@@ -71038,7 +71053,7 @@ async function unixInstall(version) {
     if (version.type !== 'local') {
         const ver = version.version;
         const sha = version.sha;
-        const platformIdentifier = await getPlatformIdentifier();
+        const platformIdentifier = await (0, system_1.getPlatformIdentifier)();
         const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${platformIdentifier}`;
         if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
             const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
@@ -71287,6 +71302,7 @@ const fs = __nccwpck_require__(9896);
 const path = __nccwpck_require__(6928);
 const semver = __nccwpck_require__(2088);
 const git = __nccwpck_require__(1243);
+const system_1 = __nccwpck_require__(7666);
 function getInstallerUrl(version, latest) {
     let ver = version.version;
     switch (version.type) {
@@ -71322,7 +71338,6 @@ async function installFromSource(xmakeBin, sourceDir, binDir) {
     await (0, exec_1.exec)(xmakeBin, ['install', '-o', binDir, 'cli'], { cwd: sourceDir });
 }
 async function winInstall(version, latest) {
-    var _a;
     if (version.type === 'local' || latest.type === 'local') {
         throw new Error('Local builds for windows is not supported');
     }
@@ -71333,7 +71348,8 @@ async function winInstall(version, latest) {
     }
     const ver = version.version;
     const sha = version.sha;
-    const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${os.arch()}-${os.platform()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
+    const platformIdentifier = await (0, system_1.getPlatformIdentifier)();
+    const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${platformIdentifier}`;
     let toolDir = '';
     if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
         const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
@@ -71341,14 +71357,14 @@ async function winInstall(version, latest) {
             try {
                 fs.accessSync(path.join(fullCachePath, 'xmake.exe'), fs.constants.X_OK);
             }
-            catch (_b) {
+            catch (_a) {
                 await cache.restoreCache([actionsCacheFolder], cacheKey);
             }
             fs.accessSync(path.join(fullCachePath, 'xmake.exe'), fs.constants.X_OK);
             toolDir = fullCachePath;
             core.info(`cache path: ${toolDir}, key: ${cacheKey}`);
         }
-        catch (_c) {
+        catch (_b) {
             core.warning(`No cached files found at path "${fullCachePath}".`);
             await io.rmRF(fullCachePath);
         }
