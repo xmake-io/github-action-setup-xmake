@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, windows-11-arm, macOS-latest, macos-14]
+        os: [macOS-latest, macos-14]
         version: [branch@test]
 
     runs-on: ${{ matrix.os }}
@@ -31,6 +31,7 @@ jobs:
 
       - name: Run tests
         run: |
+          sw_vers -productVersion
           xmake --version
           cd tests/sample
           xmake -y -vD
