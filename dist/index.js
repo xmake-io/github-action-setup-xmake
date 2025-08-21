@@ -71054,7 +71054,7 @@ async function unixInstall(version) {
                 core.info(`cache path: ${toolDir}, key: ${cacheKey}`);
             }
             catch (_b) {
-                core.warning(`No cached files found at path "${fullCachePath}".`);
+                core.warning(`No cached files found at path "${fullCachePath}, key: ${cacheKey}".`);
                 await io.rmRF(fullCachePath);
             }
         }

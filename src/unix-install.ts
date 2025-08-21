@@ -72,7 +72,7 @@ export async function unixInstall(version: Version): Promise<void> {
                 toolDir = fullCachePath;
                 core.info(`cache path: ${toolDir}, key: ${cacheKey}`);
             } catch {
-                core.warning(`No cached files found at path "${fullCachePath}".`);
+                core.warning(`No cached files found at path "${fullCachePath}, key: ${cacheKey}".`);
                 await io.rmRF(fullCachePath);
             }
         } else {
