@@ -32,7 +32,7 @@ export async function unixInstall(version: Version): Promise<void> {
     if (version.type !== 'local') {
         const ver = version.version;
         const sha = version.sha;
-        const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${os.arch()}-${os.platform()}-${
+        const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${os.arch()}-${os.platform()}-${os.release()}-${
             process.env.RUNNER_OS ?? 'unknown'
         }`;
 
