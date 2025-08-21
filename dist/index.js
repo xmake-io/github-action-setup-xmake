@@ -71075,7 +71075,7 @@ async function unixInstall(version) {
         core.addPath(path.join(toolDir, 'share', 'xmake')); // only for <= 2.3.1
     }
     // xmake l utils.binary.deplibs /Users/ruki/.local/bin/xmake
-    await (0, exec_1.exec)(`xmake --root l utils.binary.deplibs ${path.join(toolDir, 'bin', 'xmake')}`);
+    await (0, exec_1.exec)(`xmake l --root utils.binary.deplibs ${path.join(toolDir, 'bin', 'xmake')}`);
 }
 
 
