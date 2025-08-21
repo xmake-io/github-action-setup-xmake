@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [macOS-latest, macos-14]
+        os: [macOS-latest, macos-14, macos-13]
         version: [branch@test]
 
     runs-on: ${{ matrix.os }}
