@@ -10,6 +10,31 @@ import * as semver from 'semver';
 import * as git from './git';
 import { Version } from './interfaces';
 
+async function getPlatformIdentifier(): Promise<string> {
+    let identifier = `${os.platform()}-${os.arch()}-${process.env.RUNNER_OS ?? 'unknown'}`;
+    if (os.platform() === 'darwin') {
+        let productVersion = '';
+        try {
+            await exec('sw_vers', ['-productVersion'], {
+                silent: true,
+                listeners: {
+                    stdout: (data: Buffer) => {
+                        productVersion = data.toString().trim();
+                    },
+                },
+            });
+            if (productVersion) {
+                identifier += `-${productVersion}`;
+            }
+        } catch (error: unknown) {
+            core.warning(
+                `Failed to get macOS product version: ${error instanceof Error ? error.message : String(error)}`,
+            );
+        }
+    }
+    return identifier;
+}
+
 async function install(sourceDir: string, binDir: string): Promise<void> {
     if (fs.existsSync(path.join(sourceDir, 'configure'))) {
         await exec('sh', ['./configure'], { cwd: sourceDir });
@@ -32,9 +57,8 @@ export async function unixInstall(version: Version): Promise<void> {
     if (version.type !== 'local') {
         const ver = version.version;
         const sha = version.sha;
-        const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${os.arch()}-${os.platform()}-${os.release()}-${
-            process.env.RUNNER_OS ?? 'unknown'
-        }`;
+        const platformIdentifier = await getPlatformIdentifier();
+        const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${platformIdentifier}`;
 
         if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
             const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
