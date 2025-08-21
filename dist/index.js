@@ -70993,6 +70993,30 @@ const fs = __nccwpck_require__(9896);
 const path = __nccwpck_require__(6928);
 const semver = __nccwpck_require__(2088);
 const git = __nccwpck_require__(1243);
+async function getPlatformIdentifier() {
+    var _a;
+    let identifier = `${os.platform()}-${os.arch()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
+    if (os.platform() === 'darwin') {
+        let productVersion = '';
+        try {
+            await (0, exec_1.exec)('sw_vers', ['-productVersion'], {
+                silent: true,
+                listeners: {
+                    stdout: (data) => {
+                        productVersion = data.toString().trim();
+                    },
+                },
+            });
+            if (productVersion) {
+                identifier += `-${productVersion}`;
+            }
+        }
+        catch (error) {
+            core.warning(`Failed to get macOS product version: ${error instanceof Error ? error.message : String(error)}`);
+        }
+    }
+    return identifier;
+}
 async function install(sourceDir, binDir) {
     if (fs.existsSync(path.join(sourceDir, 'configure'))) {
         await (0, exec_1.exec)('sh', ['./configure'], { cwd: sourceDir });
@@ -71005,7 +71029,6 @@ async function install(sourceDir, binDir) {
     }
 }
 async function unixInstall(version) {
-    var _a;
     let toolDir = '';
     const actionsCacheFolder = core.getInput('actions-cache-folder');
     let actionsCacheKey = core.getInput('actions-cache-key');
@@ -71015,22 +71038,23 @@ async function unixInstall(version) {
     if (version.type !== 'local') {
         const ver = version.version;
         const sha = version.sha;
-        const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${os.arch()}-${os.platform()}-${(_a = process.env.RUNNER_OS) !== null && _a !== void 0 ? _a : 'unknown'}`;
+        const platformIdentifier = await getPlatformIdentifier();
+        const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${platformIdentifier}`;
         if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
             const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
             try {
                 try {
                     fs.accessSync(path.join(fullCachePath, 'bin', 'xmake'), fs.constants.X_OK);
                 }
-                catch (_b) {
+                catch (_a) {
                     await cache.restoreCache([actionsCacheFolder], cacheKey);
                 }
                 fs.accessSync(path.join(fullCachePath, 'bin', 'xmake'), fs.constants.X_OK);
                 toolDir = fullCachePath;
                 core.info(`cache path: ${toolDir}, key: ${cacheKey}`);
             }
-            catch (_c) {
-                core.warning(`No cached files found at path "${fullCachePath}".`);
+            catch (_b) {
+                core.warning(`No cached files found at path "${fullCachePath}, key: ${cacheKey}".`);
                 await io.rmRF(fullCachePath);
             }
         }
