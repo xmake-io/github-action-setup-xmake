@@ -96,11 +96,11 @@ async function selectSha(repo: Repo, sha: string): Promise<Version> {
         }
     }
     return Promise.resolve(
-        new GitVersionImpl(repo, `sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substr(0, 8)}`),
+        new GitVersionImpl(repo, `sha#${shaValue}`, shaValue, 'sha', `commit ${shaValue.substring(0, 8)}`),
     );
 }
 
-export async function selectVersion(version?: string): Promise<Version> {
+export async function selectVersion(version?: string, _fallback: boolean = false): Promise<Version> {
     // get version string
     version = (version ?? core.getInput('xmake-version')) || 'latest';
     if (version.toLowerCase() === 'latest') version = '';
@@ -123,20 +123,20 @@ export async function selectVersion(version?: string): Promise<Version> {
 
     // select branch
     if (version.startsWith('branch@')) {
-        const branch = version.substr('branch@'.length);
+        const branch = version.substring('branch@'.length);
         ret = await selectBranch(repo, branch);
     }
     // select pr
     if (version.startsWith('pr@')) {
-        const pr = Number.parseInt(version.substr('pr@'.length));
+        const pr = Number.parseInt(version.substring('pr@'.length));
         if (Number.isNaN(pr) || pr <= 0) {
-            throw new Error(`Invalid pull requrest ${version.substr('pr@'.length)}, should be a positive integer`);
+            throw new Error(`Invalid pull requrest ${version.substring('pr@'.length)}, should be a positive integer`);
         }
         ret = await selectPr(repo, pr);
     }
     // select sha
     if (version.startsWith('sha@')) {
-        const sha = version.substr('sha@'.length);
+        const sha = version.substring('sha@'.length);
         ret = await selectSha(repo, sha);
     }
     // select version
@@ -148,9 +148,9 @@ export async function selectVersion(version?: string): Promise<Version> {
     }
     if (ret.type === 'local') {
         core.info(`Use local xmake at '${ret.path}'`);
-    } else {
+    } else if (!_fallback) {
         core.info(
-            `Selected xmake ${String(ret)} (commit: ${ret.sha.substr(0, 8)})` +
+            `Selected xmake ${String(ret)} (commit: ${ret.sha.substring(0, 8)})` +
                 (repo !== DEFAULT_REPO ? ` of ${repo}` : ''),
         );
     }

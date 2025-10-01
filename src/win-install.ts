@@ -9,18 +9,22 @@ import * as path from 'path';
 import * as semver from 'semver';
 import * as git from './git';
 import { Version, GitVersion } from './interfaces';
+import { selectVersion } from './versions';
 import { getPlatformIdentifier } from './system';
 
-function getInstallerUrl(version: GitVersion, latest: GitVersion): string {
-    let ver = version.version;
+async function getInstallerUrl(version: GitVersion, _fallback: boolean = false): Promise<string> {
+    const latest = (await selectVersion('latest', _fallback)) as GitVersion;
+    const latestVers = latest.version;
+    let vers = version.version;
+    let finalUrl: string;
     switch (version.type) {
         case 'heads': {
             const arch = os.arch() === 'arm64' ? 'arm64' : os.arch() === 'x64' ? 'win64' : 'win32';
-            const latestver = latest.version;
-            if (ver !== 'dev' && ver !== 'master') {
-                ver = latestver;
+            if (vers !== 'dev' && vers !== 'master') {
+                vers = latestVers;
             }
-            return `https://github.com/xmake-io/xmake/releases/download/${latestver}/xmake-${ver}.${arch}.exe`;
+            finalUrl = `https://github.com/xmake-io/xmake/releases/download/${latestVers}/xmake-${vers}.${arch}.exe`;
+            break;
         }
         case 'pull': {
             throw new Error('PR builds for windows is not supported');
@@ -30,9 +34,10 @@ function getInstallerUrl(version: GitVersion, latest: GitVersion): string {
         }
         case 'tags': {
             const arch = os.arch() === 'arm64' ? 'arm64' : os.arch() === 'x64' ? 'win64' : 'win32';
-            return semver.gt(ver, '2.2.6')
-                ? `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.${arch}.exe`
-                : `https://github.com/xmake-io/xmake/releases/download/${ver}/xmake-${ver}.exe`;
+            finalUrl = semver.gt(vers, '2.2.6')
+                ? `https://github.com/xmake-io/xmake/releases/download/${vers}/xmake-${vers}.${arch}.exe`
+                : `https://github.com/xmake-io/xmake/releases/download/${vers}/xmake-${vers}.exe`;
+            break;
         }
         default: {
             // check that we have tested all types
@@ -40,6 +45,21 @@ function getInstallerUrl(version: GitVersion, latest: GitVersion): string {
             throw new Error('Unknown version type');
         }
     }
+    // check if the URL returns 404. If so, xmake may have just released a
+    // new version, causing some binaries to be temporarily unavailable, so
+    // we need to fallback to the previous version.
+    if (!_fallback) {
+        const head = await fetch(finalUrl, { method: 'HEAD' });
+        if (head.status === 404) {
+            const currentVers = latestVers || vers;
+            const previousVersion = (await selectVersion('<' + currentVers)) as GitVersion;
+            core.warning(
+                `The requested version ${currentVers} (${finalUrl}) resource is temporarily unavailable, trying to fallback to the previous version...`,
+            );
+            return await getInstallerUrl(previousVersion, true);
+        }
+    }
+    return finalUrl;
 }
 
 async function installFromSource(xmakeBin: string, sourceDir: string, binDir: string): Promise<void> {
@@ -47,8 +67,8 @@ async function installFromSource(xmakeBin: string, sourceDir: string, binDir: st
     await exec(xmakeBin, ['install', '-o', binDir, 'cli'], { cwd: sourceDir });
 }
 
-export async function winInstall(version: Version, latest: Version): Promise<void> {
-    if (version.type === 'local' || latest.type === 'local') {
+export async function winInstall(version: Version): Promise<void> {
+    if (version.type === 'local') {
         throw new Error('Local builds for windows is not supported');
     }
 
@@ -85,7 +105,7 @@ export async function winInstall(version: Version, latest: Version): Promise<voi
 
     if (!toolDir) {
         const installer = await core.group(`download xmake ${String(version)}`, async () => {
-            const url = getInstallerUrl(version, latest);
+            const url = await getInstallerUrl(version);
             core.info(`downloading from ${url}`);
             const file = await toolCache.downloadTool(url);
             const exe = path.format({
