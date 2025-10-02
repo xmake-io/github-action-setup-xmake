@@ -25,28 +25,31 @@ export async function lsRemote(repo: Repo): Promise<RefDic> {
         if (ref && path?.startsWith('refs/')) {
             const tagPath = path.split('/').splice(1);
             switch (tagPath[0]) {
-                case 'heads':
+                case 'heads': {
                     // refs/heads/copilot/fix-6807
-                    const head = tagPath.slice(1).join('/')
-                    data.heads[head] = ref
-                    break
-                case 'pull':
+                    const head = tagPath.slice(1).join('/');
+                    data.heads[head] = ref;
+                    break;
+                }
+                case 'pull': {
                     // refs/pull/11/head
                     // refs/pull/11/merge
-                    const pr = Number(tagPath[1])
+                    const pr = Number(tagPath[1]);
                     if (!data.pull[pr]) {
-                        data.pull[pr] = {} as RefDic['pull'][number]
+                        data.pull[pr] = {} as RefDic['pull'][number];
                     }
-                    data.pull[pr][tagPath[2] as 'head' | 'merge'] = ref
+                    data.pull[pr][tagPath[2] as 'head' | 'merge'] = ref;
                     break;
-                case 'tags':
+                }
+                case 'tags': {
                     // refs/tags/preview
                     // refs/tags/v3.0.3
-                    const tag = tagPath.slice(1).join('/')
+                    const tag = tagPath.slice(1).join('/');
                     if (isValidSemver(tag)) {
-                        data.tags[tag] = ref
+                        data.tags[tag] = ref;
                     }
                     break;
+                }
                 default:
                     break;
             }

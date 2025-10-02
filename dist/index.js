@@ -72836,6 +72836,7 @@ const exec_1 = __nccwpck_require__(5236);
 const io = __nccwpck_require__(4994);
 const os = __nccwpck_require__(857);
 const path = __nccwpck_require__(6928);
+const semver_1 = __nccwpck_require__(2088);
 function makeOpt(ref) {
     return { cwd: path.join(os.tmpdir(), `xmake-git-${ref}`) };
 }
@@ -72850,25 +72851,38 @@ async function lsRemote(repo) {
     });
     const data = { heads: {}, tags: {}, pull: {} };
     out.split('\n').forEach((line) => {
-        const [ref, tag] = line.trim().split('\t');
-        if (ref && (tag === null || tag === void 0 ? void 0 : tag.startsWith('refs/'))) {
-            const tagPath = tag.split('/').splice(1);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let ldata = data; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-            for (let i = 0; i < tagPath.length - 1; i++) {
-                const seg = tagPath[i];
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (typeof ldata[seg] === 'object') {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    ldata = ldata[seg]; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+        const [ref, path] = line.trim().split('\t');
+        if (ref && (path === null || path === void 0 ? void 0 : path.startsWith('refs/'))) {
+            const tagPath = path.split('/').splice(1);
+            switch (tagPath[0]) {
+                case 'heads': {
+                    // refs/heads/copilot/fix-6807
+                    const head = tagPath.slice(1).join('/');
+                    data.heads[head] = ref;
+                    break;
                 }
-                else {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    ldata = ldata[seg] = {};
+                case 'pull': {
+                    // refs/pull/11/head
+                    // refs/pull/11/merge
+                    const pr = Number(tagPath[1]);
+                    if (!data.pull[pr]) {
+                        data.pull[pr] = {};
+                    }
+                    data.pull[pr][tagPath[2]] = ref;
+                    break;
                 }
+                case 'tags': {
+                    // refs/tags/preview
+                    // refs/tags/v3.0.3
+                    const tag = tagPath.slice(1).join('/');
+                    if ((0, semver_1.valid)(tag)) {
+                        data.tags[tag] = ref;
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            ldata[tagPath[tagPath.length - 1]] = ref;
         }
     });
     return data;
