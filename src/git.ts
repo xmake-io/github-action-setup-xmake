@@ -3,6 +3,7 @@ import * as io from '@actions/io';
 import * as os from 'os';
 import * as path from 'path';
 import { Sha, RefDic, Repo } from './interfaces';
+import { valid as isValidSemver } from 'semver';
 
 function makeOpt(ref: Sha): { cwd: string } {
     return { cwd: path.join(os.tmpdir(), `xmake-git-${ref}`) };
@@ -20,24 +21,38 @@ export async function lsRemote(repo: Repo): Promise<RefDic> {
     });
     const data: RefDic = { heads: {}, tags: {}, pull: {} };
     out.split('\n').forEach((line) => {
-        const [ref, tag] = line.trim().split('\t');
-        if (ref && tag?.startsWith('refs/')) {
-            const tagPath = tag.split('/').splice(1);
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let ldata = data as any; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-            for (let i = 0; i < tagPath.length - 1; i++) {
-                const seg = tagPath[i];
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                if (typeof ldata[seg] === 'object') {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    ldata = ldata[seg]; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-                } else {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-                    ldata = ldata[seg] = {};
+        const [ref, path] = line.trim().split('\t') as [Sha, string];
+        if (ref && path?.startsWith('refs/')) {
+            const tagPath = path.split('/').splice(1);
+            switch (tagPath[0]) {
+                case 'heads': {
+                    // refs/heads/copilot/fix-6807
+                    const head = tagPath.slice(1).join('/');
+                    data.heads[head] = ref;
+                    break;
                 }
+                case 'pull': {
+                    // refs/pull/11/head
+                    // refs/pull/11/merge
+                    const pr = Number(tagPath[1]);
+                    if (!data.pull[pr]) {
+                        data.pull[pr] = {} as RefDic['pull'][number];
+                    }
+                    data.pull[pr][tagPath[2] as 'head' | 'merge'] = ref;
+                    break;
+                }
+                case 'tags': {
+                    // refs/tags/preview
+                    // refs/tags/v3.0.3
+                    const tag = tagPath.slice(1).join('/');
+                    if (isValidSemver(tag)) {
+                        data.tags[tag] = ref;
+                    }
+                    break;
+                }
+                default:
+                    break;
             }
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            ldata[tagPath[tagPath.length - 1]] = ref;
         }
     });
     return data;

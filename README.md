@@ -142,6 +142,6 @@ git branch test
 git checkout test
 pnpm build
 pnpm release
-git-commit -a -m "..."
+git commit -a -m "..."
 git push origin test
 ```
