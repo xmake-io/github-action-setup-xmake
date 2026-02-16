@@ -85,7 +85,7 @@ export async function winInstall(version: Version): Promise<void> {
 
     let toolDir = '';
     if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
-        const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
+        const fullCachePath = path.resolve(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
         try {
             try {
                 fs.accessSync(path.join(fullCachePath, 'xmake.exe'), fs.constants.X_OK);
@@ -146,7 +146,7 @@ export async function winInstall(version: Version): Promise<void> {
         if (toolDir) {
             let cacheDir = '';
             if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
-                cacheDir = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
+                cacheDir = path.resolve(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
                 await io.cp(toolDir, cacheDir, {
                     recursive: true,
                 });

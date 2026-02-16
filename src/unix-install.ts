@@ -37,7 +37,7 @@ export async function unixInstall(version: Version): Promise<void> {
         const cacheKey = `xmake-cache-${actionsCacheKey}-${ver}-${sha}-${platformIdentifier}`;
 
         if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
-            const fullCachePath = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
+            const fullCachePath = path.resolve(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
             try {
                 try {
                     fs.accessSync(path.join(fullCachePath, 'bin', 'xmake'), fs.constants.X_OK);
@@ -65,7 +65,7 @@ export async function unixInstall(version: Version): Promise<void> {
                 let cacheDir = '';
 
                 if (actionsCacheFolder && process.env.GITHUB_WORKSPACE) {
-                    cacheDir = path.join(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
+                    cacheDir = path.resolve(process.env.GITHUB_WORKSPACE, actionsCacheFolder);
                     await io.cp(binDir, cacheDir, {
                         recursive: true,
                     });

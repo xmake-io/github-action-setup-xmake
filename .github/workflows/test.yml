@@ -22,16 +22,36 @@ jobs:
         with:
           xmake-version: ${{ matrix.version }}
           actions-cache-folder: '.xmake-cache'
-          actions-cache-key: ${{ matrix.version }}
+          actions-cache-key: ${{ matrix.version }}-relative
           build-cache: true
-          build-cache-key: ${{ matrix.version }}
+          build-cache-key: ${{ matrix.version }}-relative
           package-cache: true
-          package-cache-key: ${{ matrix.version }}
+          package-cache-key: ${{ matrix.version }}-relative
           project-path: 'tests/sample'
 
-      - name: Run tests
+      - name: Run tests with relative cache path
         run: |
           xmake --version
           cd tests/sample
           xmake -y -vD
           xmake run
+          xmake clean
+
+      - uses: xmake-io/github-action-setup-xmake@master
+        with:
+          xmake-version: ${{ matrix.version }}
+          actions-cache-folder: '${{ runner.temp }}/xmake-cache'
+          actions-cache-key: ${{ matrix.version }}-absolute
+          build-cache: true
+          build-cache-key: ${{ matrix.version }}-absolute
+          package-cache: true
+          package-cache-key: ${{ matrix.version }}-absolute
+          project-path: 'tests/sample'
+
+      - name: Run tests with absolute cache path
+        run: |
+          xmake --version
+          cd tests/sample
+          xmake -y -vD
+          xmake run
+          xmake clean
