@@ -13,12 +13,12 @@ jobs:
       cancel-in-progress: true
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: install
         uses: wyvox/action-setup-pnpm@v3
         with:
-          node-version: 23
-          pnpm-version: 9
+          node-version: 24
+          pnpm-version: 10
       - name: build
         run: pnpm build
       - name: test
